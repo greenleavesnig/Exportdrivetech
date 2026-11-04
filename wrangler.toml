@@ -16,3 +16,5 @@ bucket_name = "exportdrivetech-media"
 
 [build]
 command = "npm run build"
+
+pages_build_output_dir = ".next"

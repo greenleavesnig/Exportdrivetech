@@ -17,8 +17,7 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "drizzle-orm": "^0.47.1",
-    "@clerk/nextjs": "^6.12.2",
-    "better-sqlite3": "^11.8.1"
+    "@clerk/nextjs": "^6.12.2"
   },
   "devDependencies": {
     "@clerk/nextjs": "^7.9.24",
