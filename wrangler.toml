@@ -13,8 +13,3 @@ database_id = "17f07d27-1221-4d49-9a4d-5f0960f736ae"
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "exportdrivetech-media"
-
-[build]
-command = "npm run build"
-
-pages_build_output_dir = ".next"
