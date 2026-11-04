@@ -8,7 +8,7 @@ import {
 } from "@/lib/make-site-settings"
 import "./styles.css"
 
-const defaultTitle = "ExportDriveTech"
+const defaultTitle = "ExportDriveTech Agro Trading"
 const title = makeSiteSettings.title ?? defaultTitle
 const description =
   makeSiteSettings.description ??
@@ -21,7 +21,7 @@ const googleAnalyticsId = sanitizeHtmlAttribute(
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://exportdrivetech.com.ng",
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   ),
   title,
   description,

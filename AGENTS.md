@@ -1,4 +1,279 @@
-# figma-make-app
+# Cloudflare Migration Plan
+
+This project is migrating from Figma Make to Cloudflare Pages.
+
+## Cloudflare Stack
+- **Hosting**: Cloudflare Pages
+- **Database**: Cloudflare D1 (SQLite) with Drizzle ORM
+- **Storage**: Cloudflare R2 for media uploads
+- **Auth**: Clerk for authentication
+- **API**: Cloudflare Pages Functions (Workers)
+
+## Migration Status
+- [x] Analyzed Payload collections (RFQSubmissions, Media, Admins, Folders, Tags)
+- [x] Designed Cloudflare architecture
+- [ ] Install dependencies (wrangler, drizzle-orm, @clerk/nextjs)
+- [ ] Create wrangler.toml configuration
+- [ ] Set up D1 database schema
+- [ ] Configure R2 bucket
+- [ ] Implement Clerk auth
+- [ ] Rewrite API routes
+- [ ] Update frontend
+- [ ] Deploy to Cloudflare
+
+## wrangler.toml Configuration
+Create this file in project root:
+```toml
+name = "exportdrivetech"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "exportdrivetech-db"
+database_id = ""
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "exportdrivetech-media"
+
+[build]
+command = "npm run build"
+
+[build.environment_variables]
+NODE_VERSION = "20"
+```
+
+## Next Steps
+1. Create wrangler.toml file manually (file system issue preventing auto-creation)
+2. Run: `npm install wrangler drizzle-orm drizzle-kit @clerk/nextjs`
+3. Run: `npx wrangler d1 create exportdrivetech-db`
+4. Run: `npx wrangler r2 bucket create exportdrivetech-media`
+5. Update database_id in wrangler.toml
+6. Create Drizzle schema in src/db/schema.ts (see below)
+7. Set up Clerk authentication
+8. Migrate API routes to Cloudflare Functions
+
+## Drizzle Schema for RFQ Submissions
+
+Create `src/db/schema.ts`:
+
+```typescript
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sql } from 'drizzle-orm'
+
+export const rfqSubmissions = sqliteTable('rfq_submissions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  referenceNumber: text('reference_number').notNull().unique(),
+  status: text('status').notNull().default('new'),
+  buyerName: text('buyer_name').notNull(),
+  company: text('company').notNull(),
+  country: text('country').notNull(),
+  destination: text('destination').notNull(),
+  email: text('email').notNull(),
+  phone: text('phone').notNull(),
+  preferredContact: text('preferred_contact').notNull().default('email'),
+  category: text('category').notNull(),
+  product: text('product').notNull(),
+  quantity: integer('quantity').notNull(),
+  unit: text('unit').notNull(),
+  packaging: text('packaging'),
+  deliveryTimeline: text('delivery_timeline'),
+  qualityRequirement: text('quality_requirement'),
+  targetPrice: text('target_price'),
+  incoterms: text('incoterms'),
+  shippingMethod: text('shipping_method'),
+  hasFreightForwarder: text('has_freight_forwarder'),
+  specialRequirements: text('special_requirements'),
+  message: text('message'),
+  referralSource: text('referral_source'),
+  quoteSentDate: integer('quote_sent_date'), // Unix timestamp
+  followUpDate: integer('follow_up_date'), // Unix timestamp
+  internalNotes: text('internal_notes'),
+  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+  updatedAt: integer('updated_at').notNull().default(sql`(unixepoch())`),
+})
+
+export const media = sqliteTable('media', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  filename: text('filename').notNull(),
+  url: text('url').notNull(),
+  alt: text('alt').notNull(),
+  folderId: integer('folder_id').references(() => folders.id),
+  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+})
+
+export const folders = sqliteTable('folders', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+})
+
+export const tags = sqliteTable('tags', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull().unique(),
+  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+})
+
+export const mediaTags = sqliteTable('media_tags', {
+  mediaId: integer('media_id').references(() => media.id).notNull(),
+  tagId: integer('tag_id').references(() => tags.id).notNull(),
+})
+```
+
+## Drizzle Config
+
+Create `drizzle.config.ts`:
+
+```typescript
+import type { Config } from 'drizzle-kit'
+
+export default {
+  schema: './src/db/schema.ts',
+  out: './drizzle',
+  dialect: 'sqlite',
+  driver: 'd1-http',
+} satisfies Config
+```
+
+## Database Utility
+
+Create `src/db/index.ts`:
+
+```typescript
+import { drizzle } from 'drizzle-orm/d1'
+import { drizzle as drizzleLocal } from 'drizzle-orm/better-sqlite3'
+import * as schema from './schema'
+
+export function getDB(d1: D1Database) {
+  return drizzle(d1, { schema })
+}
+
+// For local development
+export function getLocalDB() {
+  const sqlite = require('better-sqlite3')('./local.db')
+  return drizzleLocal(sqlite, { schema })
+}
+```
+
+## Migrate API Actions
+
+The current `src/app/(frontend)/actions.ts` uses Payload. Replace with Cloudflare Functions:
+
+Create `src/app/api/rfq/route.ts`:
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server'
+import { getDB } from '@/db'
+import { rfqSubmissions } from '@/db/schema'
+import { eq } from 'drizzle-orm'
+
+export async function POST(request: NextRequest) {
+  const formData = await request.formData()
+  
+  const data = {
+    referenceNumber: generateReference(),
+    status: 'new',
+    buyerName: formData.get('buyerName') as string,
+    company: formData.get('company') as string,
+    country: formData.get('country') as string,
+    destination: formData.get('destination') as string,
+    email: formData.get('email') as string,
+    phone: formData.get('phone') as string,
+    preferredContact: formData.get('preferredContact') as string,
+    category: formData.get('category') as string,
+    product: formData.get('product') as string,
+    quantity: Number(formData.get('quantity')),
+    unit: formData.get('unit') as string,
+    packaging: formData.get('packaging') as string | null,
+    deliveryTimeline: formData.get('deliveryTimeline') as string | null,
+    qualityRequirement: formData.get('qualityRequirement') as string | null,
+    targetPrice: formData.get('targetPrice') as string | null,
+    incoterms: formData.get('incoterms') as string | null,
+    shippingMethod: formData.get('shippingMethod') as string | null,
+    hasFreightForwarder: formData.get('hasFreightForwarder') as string | null,
+    specialRequirements: formData.get('specialRequirements') as string | null,
+    message: formData.get('message') as string | null,
+    referralSource: formData.get('referralSource') as string | null,
+  }
+
+  // Get D1 binding from Cloudflare context
+  const d1 = (request as any).env?.DB
+  if (!d1) {
+    return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+  }
+
+  const db = getDB(d1)
+  const result = await db.insert(rfqSubmissions).values(data).returning()
+
+  // Send email notification (using Resend or similar)
+  await sendEmailNotification(result[0])
+
+  return NextResponse.json({ ok: true, reference: result[0].referenceNumber })
+}
+
+function generateReference(): string {
+  const date = new Date().toISOString().slice(0, 10).replaceAll('-', '')
+  const random = Math.random().toString(36).substring(2, 10).toUpperCase()
+  return `RFQ-${date}-${random}`
+}
+
+async function sendEmailNotification(submission: any) {
+  // Implement email sending using Cloudflare Email or external service
+}
+```
+
+## Clerk Authentication Setup
+
+Create `src/middleware.ts`:
+
+```typescript
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+
+const isProtectedRoute = createRouteMatcher(['/admin(.*)'])
+
+export default clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req)) auth().protect()
+})
+
+export const config = {
+  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+}
+```
+
+Update `src/app/layout.tsx` to include ClerkProvider:
+
+```typescript
+import { ClerkProvider } from '@clerk/nextjs'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ClerkProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
+  )
+}
+```
+
+## Environment Variables
+
+Add to Cloudflare Pages settings:
+
+```
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
+CLERK_SECRET_KEY=sk_...
+RESEND_API_KEY=re_...
+RESEND_FROM_EMAIL=trade@exportdrivetech.com
+```
+
+---
+
+# figma-make-app (Original)
 
 React + Next.js + Payload + Tailwind CSS project running inside Figma Make.
 
@@ -484,13 +759,3 @@ time. Batch by dependency layer — don't write files one at a time.
   `figma-image-loader.ts`. Pass Payload `media.url` to `next/image`. Do not
   add `images.remotePatterns` or a same-origin `/media/[id]` proxy, and do
   not replace the Figma loader.
-
-<!-- BEGIN:nextjs-agent-rules -->
-
-## This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->

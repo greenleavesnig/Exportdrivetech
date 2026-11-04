@@ -124,7 +124,7 @@ export async function submitRFQ(
       <div style="font-family:Arial,sans-serif;color:#14231b;line-height:1.6;max-width:620px">
         <h2 style="color:#123c2b">Thank you for your inquiry</h2>
         <p>Dear ${safe.name},</p>
-        <p>Thank you for contacting <strong>ExportDriveTech</strong>. We have received your quote request and our export team is reviewing it. You can expect a detailed response within <strong>24–48 business hours</strong>.</p>
+        <p>Thank you for contacting <strong>ExportDriveTech Agro Trading</strong>. We have received your quote request and our export team is reviewing it. You can expect a detailed response within <strong>24–48 business hours</strong>.</p>
         <h3>Inquiry summary</h3>
         <table style="width:100%;border-collapse:collapse">
           <tr><td style="padding:8px;border-bottom:1px solid #ddd"><strong>Reference</strong></td><td>${safe.reference}</td></tr>
@@ -133,14 +133,14 @@ export async function submitRFQ(
           <tr><td style="padding:8px;border-bottom:1px solid #ddd"><strong>Destination</strong></td><td>${safe.destination}</td></tr>
           <tr><td style="padding:8px"><strong>Incoterms</strong></td><td>${safe.incoterms}</td></tr>
         </table>
-        <p>Our team will confirm availability, pricing, packaging, and shipping options. For urgent questions, contact trade@aloraexports.com or WhatsApp +233 20 000 0000.</p>
-        <p>Warm regards,<br><strong>ExportDriveTech</strong></p>
+        <p>Our team will confirm availability, pricing, packaging, and shipping options. For urgent questions, contact trade@exportdrivetech.com or WhatsApp +233 20 000 0000.</p>
+        <p>Warm regards,<br><strong>ExportDriveTech Agro Trading</strong></p>
         <p style="font-size:12px;color:#66746c">This is an automated confirmation. Please use the contact details above for follow-up.</p>
       </div>`
 
     const emailSent = await sendEmail(
       [email],
-      'Thank you for your inquiry – ExportDriveTech will respond within 24–48 hours',
+      'Thank you for your inquiry – ExportDriveTech Agro Trading will respond within 24–48 hours',
       buyerHtml,
     )
 

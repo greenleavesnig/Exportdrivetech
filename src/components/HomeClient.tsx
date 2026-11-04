@@ -1,8 +1,16 @@
 'use client'
 
 import Image from 'next/image'
-import { useActionState, useState } from 'react'
-import { submitRFQ, type RFQActionState } from '@/app/(frontend)/actions'
+import { useState } from 'react'
+
+type RFQActionState = {
+  ok: boolean
+  message: string
+  reference?: string
+  buyerName?: string
+  email?: string
+  emailSent?: boolean
+}
 
 const groups = [
   { name: 'Spices', items: ['Chili', 'Black Pepper', 'Hibiscus Flower', 'Sunflower'] },
@@ -52,7 +60,24 @@ export default function HomeClient() {
   const [activeGroup, setActiveGroup] = useState(0)
   const [rfqGroup, setRfqGroup] = useState('Seeds & Nuts')
   const [rfqProduct, setRfqProduct] = useState('Sesame Seeds')
-  const [state, formAction, pending] = useActionState(submitRFQ, initialState)
+  const [state, setState] = useState<RFQActionState>(initialState)
+  const [pending, setPending] = useState(false)
+
+  const handleSubmit = async (formData: FormData) => {
+    setPending(true)
+    try {
+      const response = await fetch('/api/rfq', {
+        method: 'POST',
+        body: formData,
+      })
+      const result = await response.json()
+      setState(result)
+    } catch (error) {
+      setState({ ok: false, message: 'Failed to submit. Please try again.' })
+    } finally {
+      setPending(false)
+    }
+  }
 
   const chooseProduct = (product: string, group: string) => {
     setRfqGroup(group)
@@ -71,7 +96,7 @@ export default function HomeClient() {
       <div className="topbar"><div className="shell"><span>Accra, Ghana · Serving global buyers</span><span>Available for 2025/26 contracts</span></div></div>
       <header>
         <div className="shell nav">
-          <a href="#" className="brand"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO EXPORTS</small></span></a>
+          <a href="#" className="brand"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></a>
           <nav className="desktop-nav"><a href="#about">About</a><a href="#products">Products</a><a href="#services">Services</a><a href="#markets">Export markets</a></nav>
           <a className="nav-cta" href="#rfq">Request a quote <Arrow /></a>
           <button type="button" className="menu-button" aria-label="Toggle menu" onClick={() => setMenu(!menu)}><span /><span /></button>
@@ -112,8 +137,8 @@ export default function HomeClient() {
 
       <section id="rfq" className="rfq">
         <div className="shell rfq-grid">
-          <div className="rfq-copy"><p className="eyebrow">Request for quotation</p><h2>Let’s plan your<br />next shipment.</h2><p>Complete the form with as much detail as possible. Our export team will respond within 24–48 business hours with pricing, availability, and shipping options.</p><div className="contact"><small>Email</small><a href="mailto:trade@aloraexports.com">trade@aloraexports.com</a><small>WhatsApp</small><a href="tel:+233200000000">+233 20 000 0000</a></div></div>
-          <form action={formAction} className="rfq-form">
+          <div className="rfq-copy"><p className="eyebrow">Request for quotation</p><h2>Let’s plan your<br />next shipment.</h2><p>Complete the form with as much detail as possible. Our export team will respond within 24–48 business hours with pricing, availability, and shipping options.</p><div className="contact"><small>Email</small><a href="mailto:trade@exportdrivetech.com">trade@exportdrivetech.com</a><small>WhatsApp</small><a href="tel:+233200000000">+233 20 000 0000</a></div></div>
+          <form action={handleSubmit} className="rfq-form">
             <div className="form-title"><b>RFQ</b><span><strong>Request a quote</strong><small>Fields marked with * are required.</small></span></div>
             <fieldset><legend><span>01</span> Buyer information</legend><div className="field-row"><label>Full name *<input name="buyerName" required placeholder="John Smith" /></label><label>Company name *<input name="company" required placeholder="ABC Imports Ltd." /></label></div><div className="field-row"><label>Country *<select name="country" required defaultValue=""><option value="" disabled>Select country</option>{countries.map(country => <option key={country}>{country}</option>)}</select></label><label>Destination port *<input name="destination" required placeholder="Port of Rotterdam" /></label></div><div className="field-row"><label>Email *<input name="email" type="email" required placeholder="john@abcimports.com" /></label><label>Phone / WhatsApp *<input name="phone" type="tel" required placeholder="+31 6 1234 5678" /></label></div><label>Preferred contact<select name="preferredContact" defaultValue="email"><option value="email">Email</option><option value="phone">Phone</option><option value="whatsapp">WhatsApp</option></select></label></fieldset>
             <fieldset><legend><span>02</span> Product inquiry</legend><div className="field-row"><label>Category *<select name="category" value={rfqGroup} onChange={e => changeGroup(e.target.value)}>{groups.map(group => <option key={group.name}>{group.name}</option>)}</select></label><label>Specific product *<select name="product" value={rfqProduct} onChange={e => setRfqProduct(e.target.value)}>{groups.find(group => group.name === rfqGroup)?.items.map(item => <option key={item}>{item}</option>)}</select></label></div><div className="field-row"><label>Quantity *<input name="quantity" type="number" min="1" required placeholder="20" /></label><label>Unit *<select name="unit" defaultValue="metric-tons"><option value="metric-tons">Metric tons</option><option value="kilograms">Kilograms</option><option value="containers">Containers</option></select></label></div><div className="field-row"><label>Packaging<select name="packaging"><option value="">Select packaging</option><option>25kg PP bags</option><option>50kg PP bags</option><option>Bulk</option><option>Custom</option></select></label><label>Delivery timeline<select name="deliveryTimeline"><option value="">Select timeline</option><option>Immediate</option><option>Within 30 days</option><option>Within 60 days</option><option>Flexible</option></select></label></div><div className="field-row"><label>Quality / grade<input name="qualityRequirement" placeholder="Export Grade A, 99% purity" /></label><label>Target price<input name="targetPrice" placeholder="USD 500 / MT" /></label></div></fieldset>
@@ -124,7 +149,7 @@ export default function HomeClient() {
           </form>
         </div>
       </section>
-      <footer><div className="shell footer"><div><a href="#" className="brand inverse"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO EXPORTS</small></span></a><p>Quality from the source. Reliability to your door.</p></div><div><a href="#about">About</a><a href="#products">Products</a><a href="#services">Services</a><a href="#rfq">Request a quote</a></div></div><div className="shell copyright"><span>© 2025 ExportDriveTech</span><span>Accra · Ghana</span></div></footer>
+      <footer><div className="shell footer"><div><a href="#" className="brand inverse"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></a><p>Quality from the source. Reliability to your door.</p></div><div><a href="#about">About</a><a href="#products">Products</a><a href="#services">Services</a><a href="#rfq">Request a quote</a></div></div><div className="shell copyright"><span>© 2025 ExportDriveTech Agro Trading</span><span>Accra · Ghana</span></div></footer>
     </main>
   )
 }
