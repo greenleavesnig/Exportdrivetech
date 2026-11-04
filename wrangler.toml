@@ -1,0 +1,21 @@
+name = "exportdrivetech"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "exportdrivetech-db"
+database_id = ""
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "exportdrivetech-media"
+
+[build]
+command = "npm run build"
+
+[build.environment_variables]
+NODE_VERSION = "20"
