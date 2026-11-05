@@ -14,13 +14,15 @@ import { ProductCategories } from './collections/ProductCategories'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// Add SSL mode to connection string for Supabase
+const connectionString = process.env.POSTGRES_URL?.includes('sslmode')
+  ? process.env.POSTGRES_URL
+  : `${process.env.POSTGRES_URL}?sslmode=no-verify`
+
 export default buildConfig({
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.POSTGRES_URL,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      connectionString,
     },
   }),
   admin: {
