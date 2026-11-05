@@ -14,10 +14,8 @@ import { ProductCategories } from './collections/ProductCategories'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// Add SSL mode to connection string for Supabase
-const connectionString = process.env.POSTGRES_URL?.includes('sslmode')
-  ? process.env.POSTGRES_URL
-  : `${process.env.POSTGRES_URL}?sslmode=no-verify`
+// Use non-pooling connection string which handles SSL better in Vercel
+const connectionString = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL
 
 export default buildConfig({
   db: postgresAdapter({
