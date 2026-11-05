@@ -57,8 +57,8 @@ export async function submitRFQ(
   const destination = text(formData, 'destination', 160)
   const email = text(formData, 'email', 180).toLowerCase()
   const phone = text(formData, 'phone', 80)
-  const category = text(formData, 'category', 80)
-  const product = text(formData, 'product', 120)
+  const categoryId = text(formData, 'category', 80)
+  const productId = text(formData, 'product', 80)
   const quantity = Number(text(formData, 'quantity', 30))
   const unit = text(formData, 'unit', 40)
   const requestedContact = text(formData, 'preferredContact', 20)
@@ -67,14 +67,11 @@ export async function submitRFQ(
     : 'email'
   const consent = formData.get('consent') === 'on'
 
-  if (!buyerName || !company || !country || !destination || !email || !phone || !category || !product) {
+  if (!buyerName || !company || !country || !destination || !email || !phone || !categoryId || !productId) {
     return { ok: false, message: 'Please complete every required field.' }
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { ok: false, message: 'Please enter a valid business email address.' }
-  }
-  if (!productGroups[category]?.includes(product)) {
-    return { ok: false, message: 'Please select a valid product and category.' }
   }
   if (!Number.isFinite(quantity) || quantity <= 0 || !['metric-tons', 'kilograms', 'containers'].includes(unit)) {
     return { ok: false, message: 'Please enter a valid quantity and unit.' }
@@ -83,6 +80,17 @@ export async function submitRFQ(
 
   try {
     const payload = await getPayload({ config })
+    
+    // Fetch product and category details
+    const productDoc = await payload.findByID({
+      collection: 'products',
+      id: productId,
+      depth: 1,
+    })
+    
+    const categoryName = productDoc?.category?.name || 'Unknown'
+    const productName = productDoc?.name || 'Unknown'
+
     const submission = await payload.create({
       collection: 'rfq-submissions',
       overrideAccess: false,
@@ -94,8 +102,8 @@ export async function submitRFQ(
         email,
         phone,
         preferredContact,
-        category,
-        product,
+        category: categoryId,
+        product: productId,
         quantity,
         unit: unit as 'metric-tons' | 'kilograms' | 'containers',
         packaging: text(formData, 'packaging', 100),
@@ -114,7 +122,7 @@ export async function submitRFQ(
     const reference = String(submission.referenceNumber)
     const safe = {
       name: escapeHtml(buyerName),
-      product: escapeHtml(product),
+      product: escapeHtml(productName),
       quantity: `${quantity} ${escapeHtml(unit.replaceAll('-', ' '))}`,
       destination: `${escapeHtml(destination)}, ${escapeHtml(country)}`,
       incoterms: escapeHtml(text(formData, 'incoterms', 40) || 'To be confirmed'),
@@ -148,7 +156,7 @@ export async function submitRFQ(
       .filter((value): value is string => Boolean(value))
     await sendEmail(
       recipients,
-      `New ${reference}: ${product} inquiry from ${company}`,
+      `New ${reference}: ${productName} inquiry from ${company}`,
       `<h2>New RFQ received</h2><p><strong>${safe.reference}</strong></p><p>${safe.name} at ${escapeHtml(company)} requested ${safe.quantity} of ${safe.product} for ${safe.destination}.</p><p>Open Payload Admin to review and follow up.</p>`,
     )
 

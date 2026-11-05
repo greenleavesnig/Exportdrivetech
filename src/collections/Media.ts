@@ -1,7 +1,5 @@
 import type { CollectionConfig } from 'payload'
 
-import { createFolderField, createTagField } from 'payload'
-
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
@@ -13,8 +11,17 @@ export const Media: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    createFolderField({ relationTo: 'folders' }),
-    createTagField({ relationTo: 'tags' }),
+    {
+      name: 'folder',
+      type: 'relationship',
+      relationTo: 'folders',
+    },
+    {
+      name: 'tags',
+      type: 'relationship',
+      relationTo: 'tags',
+      hasMany: true,
+    },
   ],
   upload: true,
 }

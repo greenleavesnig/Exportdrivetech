@@ -1,7 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { submitRFQ } from '@/app/(frontend)/actions'
+import ProductCatalog from './ProductCatalog'
+import FeaturedProducts from './FeaturedProducts'
 
 type RFQActionState = {
   ok: boolean
@@ -12,38 +15,7 @@ type RFQActionState = {
   emailSent?: boolean
 }
 
-const groups = [
-  { name: 'Spices', items: ['Chili', 'Black Pepper', 'Hibiscus Flower', 'Sunflower'] },
-  { name: 'Cereals', items: ['Sorghum', 'Millet'] },
-  { name: 'Fruits', items: ['Banana', 'Bitter Kola', 'Kola Nuts', 'Avocado', 'Mango', 'Orange', 'Lime', 'Lemon'] },
-  { name: 'Vegetables', items: ['Okra', 'Moringa Leaves', 'Sweet Potato'] },
-  { name: 'Seeds & Nuts', items: ['Sesame Seeds', 'Peanut', 'Cashew Nuts', 'Soya Beans', 'Cannery Seeds', 'Coconut Chips'] },
-  { name: 'Herbs', items: ['Hibiscus Flower Whole', 'Moringa Powder'] },
-  { name: 'Others', items: ['Briquettes & Charcoal', 'Pellet', 'Wood Chips'] },
-]
-
 const countries = ['Australia', 'Austria', 'Belgium', 'Brazil', 'Canada', 'China', 'Denmark', 'Egypt', 'Finland', 'France', 'Germany', 'Ghana', 'India', 'Indonesia', 'Ireland', 'Italy', 'Japan', 'Kenya', 'Malaysia', 'Mexico', 'Morocco', 'Netherlands', 'New Zealand', 'Nigeria', 'Norway', 'Poland', 'Portugal', 'Qatar', 'Saudi Arabia', 'Singapore', 'South Africa', 'South Korea', 'Spain', 'Sweden', 'Switzerland', 'Türkiye', 'United Arab Emirates', 'United Kingdom', 'United States', 'Vietnam']
-
-const featured = [
-  {
-    name: 'Sesame Seeds',
-    group: 'Seeds & Nuts',
-    detail: 'Natural & hulled · 99.5% purity',
-    image: 'https://images.unsplash.com/photo-1791668009425-311039a577a5?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    name: 'Hibiscus Flower Whole',
-    group: 'Herbs',
-    detail: 'Whole flower · Deep crimson',
-    image: 'https://images.unsplash.com/photo-1652128288793-6a2077ee246b?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    name: 'Mango',
-    group: 'Fruits',
-    detail: 'Tree-ripened · Export packed',
-    image: 'https://images.unsplash.com/photo-1605027990121-cbae9e0642df?auto=format&fit=crop&w=900&q=85',
-  },
-]
 
 const initialState: RFQActionState = { ok: false, message: '' }
 
@@ -57,38 +29,54 @@ function Mark() {
 
 export default function HomeClient() {
   const [menu, setMenu] = useState(false)
-  const [activeGroup, setActiveGroup] = useState(0)
-  const [rfqGroup, setRfqGroup] = useState('Seeds & Nuts')
-  const [rfqProduct, setRfqProduct] = useState('Sesame Seeds')
+  const [categories, setCategories] = useState<any[]>([])
+  const [products, setProducts] = useState<any[]>([])
+  const [rfqCategory, setRfqCategory] = useState('')
+  const [rfqProduct, setRfqProduct] = useState('')
   const [state, setState] = useState<RFQActionState>(initialState)
   const [pending, setPending] = useState(false)
 
-  const handleSubmit = async (formData: FormData) => {
-    setPending(true)
-    try {
-      const response = await fetch('/api/rfq', {
-        method: 'POST',
-        body: formData,
-      })
-      const result = await response.json()
-      setState(result)
-    } catch (error) {
-      setState({ ok: false, message: 'Failed to submit. Please try again.' })
-    } finally {
-      setPending(false)
+  useEffect(() => {
+    async function loadDropdownData() {
+      try {
+        const [catsRes, prodsRes] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/products'),
+        ])
+        const [cats, prods] = await Promise.all([
+          catsRes.json(),
+          prodsRes.json(),
+        ])
+        setCategories(cats)
+        setProducts(prods)
+        if (cats.length > 0) {
+          setRfqCategory(cats[0].id)
+          const categoryProducts = prods.filter((p: any) => p.category.id === cats[0].id)
+          if (categoryProducts.length > 0) {
+            setRfqProduct(categoryProducts[0].id)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load dropdown data:', error)
+      }
     }
-  }
+    loadDropdownData()
+  }, [])
 
-  const chooseProduct = (product: string, group: string) => {
-    setRfqGroup(group)
-    setRfqProduct(product)
+
+
+  const chooseProduct = (productId: string, categoryId: string) => {
+    setRfqCategory(categoryId)
+    setRfqProduct(productId)
     document.getElementById('rfq')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const changeGroup = (name: string) => {
-    const group = groups.find((item) => item.name === name) ?? groups[0]
-    setRfqGroup(group.name)
-    setRfqProduct(group.items[0])
+  const changeCategory = (categoryId: string) => {
+    setRfqCategory(categoryId)
+    const categoryProducts = products.filter((p) => p.category.id === categoryId)
+    if (categoryProducts.length > 0) {
+      setRfqProduct(categoryProducts[0].id)
+    }
   }
 
   return (
@@ -116,20 +104,9 @@ export default function HomeClient() {
         <div className="shell stats">{[['12+', 'Years of experience'], ['18', 'Export destinations'], ['100%', 'Traceable sourcing'], ['24–48h', 'RFQ response']].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
       </section>
 
-      <section id="about" className="section">
-        <div className="shell split-heading"><div><p className="eyebrow">What we export</p><h2>Harvested with care.<br />Prepared for <em>the world.</em></h2></div><p>We bridge trusted local growers and international buyers. Every shipment is selected, graded, and packed to meet your market requirements.</p></div>
-        <div className="shell feature-grid">
-          {featured.map((item) => <article className="feature-card" key={item.name}><Image src={item.image} alt={item.name} fill sizes="(max-width: 760px) 100vw, 33vw" /><div className="card-shade" /><span>{item.group}</span><div><small>{item.detail}</small><h3>{item.name}</h3><button type="button" onClick={() => chooseProduct(item.name, item.group)}>Request quote <Arrow /></button></div></article>)}
-        </div>
-      </section>
+      <FeaturedProducts />
 
-      <section id="products" className="section catalog">
-        <div className="shell split-heading"><div><p className="eyebrow">Our full catalog</p><h2>One source. <em>Every harvest.</em></h2></div><p>Explore our export-ready selection by product group.</p></div>
-        <div className="shell catalog-box">
-          <div className="group-tabs">{groups.map((group, index) => <button type="button" className={index === activeGroup ? 'active' : ''} onClick={() => setActiveGroup(index)} key={group.name}><span>{String(index + 1).padStart(2, '0')}</span>{group.name}<small>{group.items.length}</small></button>)}</div>
-          <div className="group-products"><small>Product group</small><h3>{groups[activeGroup].name}</h3><div>{groups[activeGroup].items.map((item) => <button type="button" onClick={() => chooseProduct(item, groups[activeGroup].name)} key={item}>{item}<span>↗</span></button>)}</div></div>
-        </div>
-      </section>
+      <ProductCatalog />
 
       <section id="markets" className="markets"><div className="shell market-grid"><div><p className="eyebrow light">Export markets</p><h2>Rooted locally.<br /><em>Connected globally.</em></h2><p>From documentation to last-mile logistics, our export team keeps your consignment moving safely and on schedule.</p><a className="button outline" href="#rfq">Discuss your destination <Arrow /></a></div><div className="market-card">{[['Europe', 'Netherlands · Germany · UK'], ['Middle East', 'UAE · Saudi Arabia · Qatar'], ['Asia', 'India · China · Vietnam'], ['North America', 'USA · Canada']].map(([region, places]) => <div key={region}><strong>{region}</strong><span>{places}</span></div>)}</div></div></section>
 
@@ -138,18 +115,28 @@ export default function HomeClient() {
       <section id="rfq" className="rfq">
         <div className="shell rfq-grid">
           <div className="rfq-copy"><p className="eyebrow">Request for quotation</p><h2>Let’s plan your<br />next shipment.</h2><p>Complete the form with as much detail as possible. Our export team will respond within 24–48 business hours with pricing, availability, and shipping options.</p><div className="contact"><small>Email</small><a href="mailto:trade@exportdrivetech.com">trade@exportdrivetech.com</a><small>WhatsApp</small><a href="tel:+233200000000">+233 20 000 0000</a></div></div>
-          <form action={handleSubmit} className="rfq-form">
+          <form action={async (formData: FormData) => {
+            setPending(true)
+            try {
+              const result = await submitRFQ(state, formData)
+              setState(result)
+            } catch (error) {
+              setState({ ok: false, message: 'Failed to submit. Please try again.' })
+            } finally {
+              setPending(false)
+            }
+          }} className="rfq-form">
             <div className="form-title"><b>RFQ</b><span><strong>Request a quote</strong><small>Fields marked with * are required.</small></span></div>
             <fieldset><legend><span>01</span> Buyer information</legend><div className="field-row"><label>Full name *<input name="buyerName" required placeholder="John Smith" /></label><label>Company name *<input name="company" required placeholder="ABC Imports Ltd." /></label></div><div className="field-row"><label>Country *<select name="country" required defaultValue=""><option value="" disabled>Select country</option>{countries.map(country => <option key={country}>{country}</option>)}</select></label><label>Destination port *<input name="destination" required placeholder="Port of Rotterdam" /></label></div><div className="field-row"><label>Email *<input name="email" type="email" required placeholder="john@abcimports.com" /></label><label>Phone / WhatsApp *<input name="phone" type="tel" required placeholder="+31 6 1234 5678" /></label></div><label>Preferred contact<select name="preferredContact" defaultValue="email"><option value="email">Email</option><option value="phone">Phone</option><option value="whatsapp">WhatsApp</option></select></label></fieldset>
-            <fieldset><legend><span>02</span> Product inquiry</legend><div className="field-row"><label>Category *<select name="category" value={rfqGroup} onChange={e => changeGroup(e.target.value)}>{groups.map(group => <option key={group.name}>{group.name}</option>)}</select></label><label>Specific product *<select name="product" value={rfqProduct} onChange={e => setRfqProduct(e.target.value)}>{groups.find(group => group.name === rfqGroup)?.items.map(item => <option key={item}>{item}</option>)}</select></label></div><div className="field-row"><label>Quantity *<input name="quantity" type="number" min="1" required placeholder="20" /></label><label>Unit *<select name="unit" defaultValue="metric-tons"><option value="metric-tons">Metric tons</option><option value="kilograms">Kilograms</option><option value="containers">Containers</option></select></label></div><div className="field-row"><label>Packaging<select name="packaging"><option value="">Select packaging</option><option>25kg PP bags</option><option>50kg PP bags</option><option>Bulk</option><option>Custom</option></select></label><label>Delivery timeline<select name="deliveryTimeline"><option value="">Select timeline</option><option>Immediate</option><option>Within 30 days</option><option>Within 60 days</option><option>Flexible</option></select></label></div><div className="field-row"><label>Quality / grade<input name="qualityRequirement" placeholder="Export Grade A, 99% purity" /></label><label>Target price<input name="targetPrice" placeholder="USD 500 / MT" /></label></div></fieldset>
+            <fieldset><legend><span>02</span> Product inquiry</legend><div className="field-row"><label>Category *<select name="category" value={rfqCategory} onChange={e => changeCategory(e.target.value)}>{categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}</select></label><label>Specific product *<select name="product" value={rfqProduct} onChange={e => setRfqProduct(e.target.value)}>{products.filter(p => p.category.id === rfqCategory).map(product => <option key={product.id} value={product.id}>{product.name}</option>)}</select></label></div><div className="field-row"><label>Quantity *<input name="quantity" type="number" min="1" required placeholder="20" /></label><label>Unit *<select name="unit" defaultValue="metric-tons"><option value="metric-tons">Metric tons</option><option value="kilograms">Kilograms</option><option value="containers">Containers</option></select></label></div><div className="field-row"><label>Packaging<select name="packaging"><option value="">Select packaging</option><option>25kg PP bags</option><option>50kg PP bags</option><option>Bulk</option><option>Custom</option></select></label><label>Delivery timeline<select name="deliveryTimeline"><option value="">Select timeline</option><option>Immediate</option><option>Within 30 days</option><option>Within 60 days</option><option>Flexible</option></select></label></div><div className="field-row"><label>Quality / grade<input name="qualityRequirement" placeholder="Export Grade A, 99% purity" /></label><label>Target price<input name="targetPrice" placeholder="USD 500 / MT" /></label></div></fieldset>
             <fieldset><legend><span>03</span> Shipping & logistics</legend><div className="field-row"><label>Incoterms<select name="incoterms"><option value="">Select term</option><option>FOB</option><option>CIF</option><option>EXW</option><option>CFR</option><option>DDP</option></select></label><label>Shipping method<select name="shippingMethod"><option value="">Select method</option><option>Sea freight</option><option>Air freight</option><option>Courier</option><option>Not sure</option></select></label></div><label>Freight forwarder<select name="hasFreightForwarder"><option value="">Select answer</option><option>Yes</option><option>No</option></select></label><label>Special requirements<textarea name="specialRequirements" rows={3} placeholder="Phytosanitary certificate, fumigation, inspection..." /></label></fieldset>
-            <fieldset><legend><span>04</span> Additional information</legend><label>Message<textarea name="message" rows={3} placeholder="Any additional order details or questions." /></label><label>How did you find us?<select name="referralSource"><option value="">Select option</option><option>Google</option><option>Referral</option><option>Trade fair</option><option>Social media</option><option>Other</option></select></label><label className="honeypot">Website<input name="website" tabIndex={-1} autoComplete="off" /></label><label className="consent"><input name="consent" type="checkbox" required /><span>I agree to be contacted regarding this inquiry and accept the Privacy Policy. *</span></label></fieldset>
+            <fieldset><legend><span>04</span> Additional information</legend><label>Message<textarea name="message" rows={3} placeholder="Any additional order details or questions." /></label><label>How did you find us?<select name="referralSource"><option value="">Select option</option><option>Google</option><option>Referral</option><option>Trade fair</option><option>Social media</option><option>Other</option></select></label><label className="honeypot">Website<input name="website" tabIndex={-1} autoComplete="off" /></label><label className="consent"><input name="consent" type="checkbox" required /><span>I agree to be contacted regarding this inquiry and accept the <a href="/privacy" className="underline" target="_blank">Privacy Policy</a>. *</span></label></fieldset>
             <button className="button dark submit" type="submit" disabled={pending}>{pending ? 'Submitting…' : 'Submit quote request'} <Arrow /></button>
             {state.message && <div className={state.ok ? 'form-message success' : 'form-message error'} role="status">{state.ok ? <><strong>Request received — {state.reference}</strong><span>Thank you, {state.buyerName}. We’ll contact you at {state.email} within 24–48 business hours.{state.emailSent === false && ' Email confirmation is pending setup.'}</span></> : state.message}</div>}
           </form>
         </div>
       </section>
-      <footer><div className="shell footer"><div><a href="#" className="brand inverse"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></a><p>Quality from the source. Reliability to your door.</p></div><div><a href="#about">About</a><a href="#products">Products</a><a href="#services">Services</a><a href="#rfq">Request a quote</a></div></div><div className="shell copyright"><span>© 2025 ExportDriveTech Agro Trading</span><span>Accra · Ghana</span></div></footer>
+      <footer><div className="shell footer"><div><a href="#" className="brand inverse"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></a><p>Quality from the source. Reliability to your door.</p></div><div><a href="#about">About</a><a href="#products">Products</a><a href="#services">Services</a><a href="#rfq">Request a quote</a></div><div><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Service</a></div></div><div className="shell copyright"><span>© 2025 ExportDriveTech Agro Trading</span><span>Accra · Ghana</span></div></footer>
     </main>
   )
 }

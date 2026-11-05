@@ -81,8 +81,18 @@ export const RFQSubmissions: CollectionConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'category', type: 'text', required: true },
-        { name: 'product', type: 'text', required: true },
+        {
+          name: 'category',
+          type: 'relationship',
+          relationTo: 'product-categories',
+          required: true,
+        },
+        {
+          name: 'product',
+          type: 'relationship',
+          relationTo: 'products',
+          required: true,
+        },
       ],
     },
     {
