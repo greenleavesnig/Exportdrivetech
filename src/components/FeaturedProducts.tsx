@@ -1,32 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import type { Product } from '@/lib/products'
 import Link from 'next/link'
 
-export default function FeaturedProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+interface FeaturedProductsProps {
+  products: Product[]
+  loading: boolean
+}
 
-  useEffect(() => {
-    async function loadFeatured() {
-      try {
-        const res = await fetch('/api/products?featured=true&limit=3')
-        const featured = await res.json()
-        setProducts(featured)
-      } catch (error) {
-        console.error('Failed to load featured products:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadFeatured()
-  }, [])
+export default function FeaturedProducts({ products, loading }: FeaturedProductsProps) {
 
   const chooseProduct = (productName: string, categoryName: string) => {
     const rfqSection = document.getElementById('rfq')
     rfqSection?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const featuredProducts = products.filter(p => p.featured).slice(0, 3)
 
   if (loading) {
     return (
@@ -48,7 +37,7 @@ export default function FeaturedProducts() {
         <p>We bridge trusted local growers and international buyers. Every shipment is selected, graded, and packed to meet your market requirements.</p>
       </div>
       <div className="shell feature-grid">
-        {products.map((product) => (
+        {featuredProducts.map((product) => (
           <article className="feature-card" key={product.id}>
             {product.featuredImage && (
               <img

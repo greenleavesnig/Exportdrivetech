@@ -31,6 +31,7 @@ export default function HomeClient() {
   const [menu, setMenu] = useState(false)
   const [categories, setCategories] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [rfqCategory, setRfqCategory] = useState('')
   const [rfqProduct, setRfqProduct] = useState('')
   const [state, setState] = useState<RFQActionState>(initialState)
@@ -58,6 +59,8 @@ export default function HomeClient() {
         }
       } catch (error) {
         console.error('Failed to load dropdown data:', error)
+      } finally {
+        setLoading(false)
       }
     }
     loadDropdownData()
@@ -104,9 +107,9 @@ export default function HomeClient() {
         <div className="shell stats">{[['12+', 'Years of experience'], ['18', 'Export destinations'], ['100%', 'Traceable sourcing'], ['24–48h', 'RFQ response']].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
       </section>
 
-      <FeaturedProducts />
+      <FeaturedProducts products={products} loading={loading} />
 
-      <ProductCatalog />
+      <ProductCatalog categories={categories} products={products} loading={loading} />
 
       <section id="markets" className="markets"><div className="shell market-grid"><div><p className="eyebrow light">Export markets</p><h2>Rooted locally.<br /><em>Connected globally.</em></h2><p>From documentation to last-mile logistics, our export team keeps your consignment moving safely and on schedule.</p><a className="button outline" href="#rfq">Discuss your destination <Arrow /></a></div><div className="market-card">{[['Europe', 'Netherlands · Germany · UK'], ['Middle East', 'UAE · Saudi Arabia · Qatar'], ['Asia', 'India · China · Vietnam'], ['North America', 'USA · Canada']].map(([region, places]) => <div key={region}><strong>{region}</strong><span>{places}</span></div>)}</div></div></section>
 
