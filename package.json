@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "format": "oxfmt",
-    "seed": "tsx src/seed.ts"
+    "seed": "tsx src/seed.ts",
+    "init-db": "tsx src/init-db.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.2",

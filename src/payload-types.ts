@@ -60,18 +60,6 @@ export type SupportedTimezones =
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
   | 'Pacific/Fiji';
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_3DE324E4".
- */
-export type LexicalNodes_3DE324E4 =
-  | SerializedTextNode
-  | SerializedTabNode
-  | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_3DE324E4>
-  | SerializedListNode<LexicalNodes_3DE324E4>
-  | SerializedListItemNode<LexicalNodes_3DE324E4>
-  | SerializedHeadingNode<LexicalNodes_3DE324E4, 'h2' | 'h3' | 'h4'>;
 
 export interface Config {
   auth: {
@@ -84,38 +72,42 @@ export interface Config {
     folders: Folder;
     tags: Tag;
     'rfq-submissions': RfqSubmission;
+    products: Product;
+    'product-categories': ProductCategory;
     'payload-kv': PayloadKv;
+    'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
-    'payload-llm-instructions': PayloadLlmInstruction;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'payload-folders': {
+      documentsAndFolders: 'payload-folders' | 'folders';
+    };
+  };
   collectionsSelect: {
     admins: AdminsSelect<false> | AdminsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     folders: FoldersSelect<false> | FoldersSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     'rfq-submissions': RfqSubmissionsSelect<false> | RfqSubmissionsSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
-    'payload-llm-instructions': PayloadLlmInstructionsSelect<false> | PayloadLlmInstructionsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | 'en' | 'en'[];
   globals: {};
   globalsSelect: {};
   locale: 'en';
   widgets: {
-    welcome: WelcomeWidget;
     collections: CollectionsWidget;
-    'collection-query': CollectionQueryWidget;
-    activity: ActivityWidget;
-    'upload-dropzone': UploadDropzoneWidget;
   };
   user: Admin;
   jobs: {
@@ -146,22 +138,25 @@ export interface AdminAuthOperations {
  * via the `definition` "admins".
  */
 export interface Admin {
-  id: string;
-  figmaHandle?: string | null;
-  figmaImageUrl?: string | null;
-  userGroups?: string[] | null;
-  makePermission?: ('view' | 'edit') | null;
-  email?: string | null;
-  createdBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
-  updatedBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
+  id: number;
   updatedAt: string;
   createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
   collection: 'admins';
 }
 /**
@@ -169,20 +164,10 @@ export interface Admin {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   alt: string;
-  _h_folders?: (string | null) | Folder;
-  _h_tags?: (string | Tag)[] | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
-  createdBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
-  updatedBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
+  folder?: (number | null) | Folder;
+  tags?: (number | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -192,16 +177,6 @@ export interface Media {
   filesize?: number | null;
   width?: number | null;
   height?: number | null;
-  original?: {
-    filename?: string | null;
-    url?: string | null;
-    mimeType?: string | null;
-    filesize?: number | null;
-    width?: number | null;
-    height?: number | null;
-    prefix?: string | null;
-    _objectKey?: string | null;
-  };
   focalX?: number | null;
   focalY?: number | null;
 }
@@ -210,49 +185,54 @@ export interface Media {
  * via the `definition` "folders".
  */
 export interface Folder {
-  id: string;
-  _h_folders?: (string | null) | Folder;
+  id: number;
   name: string;
-  createdBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
-  updatedBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
+  folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
-  _h_slugPath?: string | null;
-  _h_titlePath?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-folders".
+ */
+export interface FolderInterface {
+  id: number;
+  name: string;
+  folder?: (number | null) | FolderInterface;
+  documentsAndFolders?: {
+    docs?: (
+      | {
+          relationTo?: 'payload-folders';
+          value: number | FolderInterface;
+        }
+      | {
+          relationTo?: 'folders';
+          value: number | Folder;
+        }
+    )[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  folderType?: 'folders'[] | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tags".
  */
 export interface Tag {
-  id: string;
-  _h_tags?: (string | null) | Tag;
+  id: number;
   name: string;
-  createdBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
-  updatedBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
   updatedAt: string;
   createdAt: string;
-  _h_slugPath?: string | null;
-  _h_titlePath?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "rfq-submissions".
  */
 export interface RfqSubmission {
-  id: string;
+  id: number;
   referenceNumber?: string | null;
   status?: ('new' | 'quoted' | 'negotiating' | 'closed-won' | 'closed-lost') | null;
   buyerName: string;
@@ -262,8 +242,8 @@ export interface RfqSubmission {
   email: string;
   phone: string;
   preferredContact: 'email' | 'phone' | 'whatsapp';
-  category: string;
-  product: string;
+  category: number | ProductCategory;
+  product: number | Product;
   quantity: number;
   unit: 'metric-tons' | 'kilograms' | 'containers';
   packaging?: string | null;
@@ -279,14 +259,133 @@ export interface RfqSubmission {
   quoteSentDate?: string | null;
   followUpDate?: string | null;
   internalNotes?: string | null;
-  createdBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
-  updatedBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories".
+ */
+export interface ProductCategory {
+  id: number;
+  name: string;
+  description?: string | null;
+  /**
+   * Emoji or icon name for this category
+   */
+  icon?: string | null;
+  /**
+   * Display order (lower numbers appear first)
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number;
+  name: string;
+  /**
+   * URL-friendly identifier (auto-generated from name if empty)
+   */
+  slug: string;
+  /**
+   * Product category grouping
+   */
+  category: number | ProductCategory;
+  /**
+   * Short product description for listings
+   */
+  description: string;
+  /**
+   * Detailed product description for detail page
+   */
+  fullDescription?: string | null;
+  images?:
+    | {
+        image: number | Media;
+        alt: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Main image for listings
+   */
+  featuredImage?: (number | null) | Media;
+  /**
+   * Product specifications (e.g., Purity: 99.5%, Moisture: 8%)
+   */
+  specifications?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Price per metric ton (USD)
+   */
+  price?: number | null;
+  priceUnit?: ('metric-ton' | 'kilogram' | 'container') | null;
+  /**
+   * Minimum Order Quantity (metric tons)
+   */
+  moq?: number | null;
+  moqUnit?: ('metric-tons' | 'kilograms' | 'containers') | null;
+  availability?: ('available' | 'limited' | 'out-of-stock' | 'seasonal') | null;
+  /**
+   * Harvest season (e.g., October - February)
+   */
+  season?: string | null;
+  /**
+   * Product certifications (Organic, ISO, Fair Trade, etc.)
+   */
+  certifications?:
+    | {
+        name: string;
+        issuer?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Available packaging (e.g., 25kg PP bags, 50kg PP bags, Bulk)
+   */
+  packagingOptions?:
+    | {
+        type: string;
+        weight?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Country or region of origin
+   */
+  origin?: string | null;
+  /**
+   * Product grade (e.g., Grade A, Premium, Standard)
+   */
+  grade?: string | null;
+  /**
+   * Only published products appear on the website
+   */
+  status?: ('draft' | 'published' | 'archived') | null;
+  /**
+   * Show in featured products section
+   */
+  featured?: boolean | null;
+  meta?: {
+    /**
+     * SEO title (defaults to product name)
+     */
+    title?: string | null;
+    /**
+     * SEO description
+     */
+    description?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -295,7 +394,7 @@ export interface RfqSubmission {
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -312,32 +411,44 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'admins';
-        value: string | Admin;
+        value: number | Admin;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
       } | null)
     | ({
         relationTo: 'folders';
-        value: string | Folder;
+        value: number | Folder;
       } | null)
     | ({
         relationTo: 'tags';
-        value: string | Tag;
+        value: number | Tag;
       } | null)
     | ({
         relationTo: 'rfq-submissions';
-        value: string | RfqSubmission;
+        value: number | RfqSubmission;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'product-categories';
+        value: number | ProductCategory;
+      } | null)
+    | ({
+        relationTo: 'payload-folders';
+        value: number | FolderInterface;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'admins';
-    value: string | Admin;
+    value: number | Admin;
   };
   updatedAt: string;
   createdAt: string;
@@ -347,10 +458,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'admins';
-    value: string | Admin;
+    value: number | Admin;
   };
   key?: string | null;
   value?:
@@ -370,31 +481,9 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-llm-instructions".
- */
-export interface PayloadLlmInstruction {
-  id: string;
-  entitySlug: string;
-  title?: string | null;
-  entityType: 'collection' | 'global';
-  additionalInstructions?: LexicalRichText<LexicalNodes_3DE324E4> | null;
-  systemInstructions?: LexicalRichText<LexicalNodes_3DE324E4> | null;
-  createdBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
-  updatedBy?: {
-    relationTo: 'admins';
-    value: string | Admin;
-  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -403,15 +492,23 @@ export interface PayloadLlmInstruction {
  * via the `definition` "admins_select".
  */
 export interface AdminsSelect<T extends boolean = true> {
-  figmaHandle?: T;
-  figmaImageUrl?: T;
-  userGroups?: T;
-  makePermission?: T;
-  email?: T;
-  createdBy?: T;
-  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -419,12 +516,8 @@ export interface AdminsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  _h_folders?: T;
-  _h_tags?: T;
-  prefix?: T;
-  _objectKey?: T;
-  createdBy?: T;
-  updatedBy?: T;
+  folder?: T;
+  tags?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -434,18 +527,6 @@ export interface MediaSelect<T extends boolean = true> {
   filesize?: T;
   width?: T;
   height?: T;
-  original?:
-    | T
-    | {
-        filename?: T;
-        url?: T;
-        mimeType?: T;
-        filesize?: T;
-        width?: T;
-        height?: T;
-        prefix?: T;
-        _objectKey?: T;
-      };
   focalX?: T;
   focalY?: T;
 }
@@ -454,28 +535,19 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "folders_select".
  */
 export interface FoldersSelect<T extends boolean = true> {
-  _h_folders?: T;
   name?: T;
-  createdBy?: T;
-  updatedBy?: T;
+  folder?: T;
   updatedAt?: T;
   createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tags_select".
  */
 export interface TagsSelect<T extends boolean = true> {
-  _h_tags?: T;
   name?: T;
-  createdBy?: T;
-  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -508,8 +580,76 @@ export interface RfqSubmissionsSelect<T extends boolean = true> {
   quoteSentDate?: T;
   followUpDate?: T;
   internalNotes?: T;
-  createdBy?: T;
-  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  category?: T;
+  description?: T;
+  fullDescription?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        id?: T;
+      };
+  featuredImage?: T;
+  specifications?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  price?: T;
+  priceUnit?: T;
+  moq?: T;
+  moqUnit?: T;
+  availability?: T;
+  season?: T;
+  certifications?:
+    | T
+    | {
+        name?: T;
+        issuer?: T;
+        id?: T;
+      };
+  packagingOptions?:
+    | T
+    | {
+        type?: T;
+        weight?: T;
+        id?: T;
+      };
+  origin?: T;
+  grade?: T;
+  status?: T;
+  featured?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-categories_select".
+ */
+export interface ProductCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  icon?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -520,6 +660,18 @@ export interface RfqSubmissionsSelect<T extends boolean = true> {
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-folders_select".
+ */
+export interface PayloadFoldersSelect<T extends boolean = true> {
+  name?: T;
+  folder?: T;
+  documentsAndFolders?: T;
+  folderType?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -555,32 +707,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-llm-instructions_select".
- */
-export interface PayloadLlmInstructionsSelect<T extends boolean = true> {
-  id?: T;
-  entitySlug?: T;
-  title?: T;
-  entityType?: T;
-  additionalInstructions?: T;
-  systemInstructions?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "welcome_widget".
- */
-export interface WelcomeWidget {
-  data?: {
-    [k: string]: unknown;
-  };
-  width: 'full';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -591,139 +717,10 @@ export interface CollectionsWidget {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "collection-query_widget".
- */
-export interface CollectionQueryWidget {
-  data?: {
-    title?: string | null;
-    relatedCollection: 'admins' | 'media' | 'folders' | 'tags' | 'rfq-submissions';
-    where?:
-      | {
-          [k: string]: unknown;
-        }
-      | unknown[]
-      | string
-      | number
-      | boolean
-      | null;
-    sortField?: string | null;
-    sortDirection?: ('asc' | 'desc') | null;
-    limit?: number | null;
-  };
-  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activity_widget".
- */
-export interface ActivityWidget {
-  data?: {
-    excludedCollections?: ('admins' | 'media' | 'folders' | 'tags' | 'rfq-submissions')[] | null;
-  };
-  width: 'small' | 'medium' | 'large' | 'x-large' | 'full';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "upload-dropzone_widget".
- */
-export interface UploadDropzoneWidget {
-  data?: {
-    excludedCollections?: 'media'[] | null;
-  };
-  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
   [k: string]: unknown;
-}
-
-/** @internal Core Lexical types — see @payloadcms/richtext-lexical. */
-export type LexicalElementFormat = 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-export type LexicalElementDirection = ('ltr' | 'rtl') | null;
-
-export interface SerializedLexicalElementBase<TChildren> {
-  children: TChildren[];
-  direction: LexicalElementDirection;
-  format: LexicalElementFormat;
-  indent: number;
-  textFormat?: number;
-  textStyle?: string;
-  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
-  version: number;
-}
-
-export type LexicalTextMode = 'normal' | 'token' | 'segmented';
-
-export interface SerializedTextNode {
-  type: 'text';
-  detail: number;
-  format: number;
-  mode: LexicalTextMode;
-  style: string;
-  text: string;
-  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
-  version: number;
-}
-
-export interface SerializedTabNode {
-  type: 'tab';
-  detail: number;
-  format: number;
-  mode: LexicalTextMode;
-  style: string;
-  text: string;
-  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
-  version: number;
-}
-
-export interface SerializedLineBreakNode {
-  type: 'linebreak';
-  /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
-  version: number;
-}
-
-export interface SerializedParagraphNode<TChildren> extends SerializedLexicalElementBase<TChildren> {
-  type: 'paragraph';
-  textFormat: number;
-  textStyle: string;
-}
-
-export interface SerializedListNode<TChildren> extends SerializedLexicalElementBase<TChildren> {
-  type: 'list';
-  checked?: boolean;
-  listType: 'number' | 'bullet' | 'check';
-  start: number;
-  tag: 'ul' | 'ol';
-}
-
-export interface SerializedListItemNode<TChildren> extends SerializedLexicalElementBase<TChildren> {
-  type: 'listitem';
-  checked?: boolean;
-  value: number;
-}
-
-export interface SerializedHeadingNode<
-  TChildren,
-  TTag extends 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-> extends SerializedLexicalElementBase<TChildren> {
-  type: 'heading';
-  tag: TTag;
-}
-
-/** Shape of a Lexical `richText` field. */
-export interface LexicalRichText<TNode> {
-  root: {
-    children: TNode[];
-    direction: LexicalElementDirection;
-    format: LexicalElementFormat;
-    indent: number;
-    type: 'root';
-    /** @deprecated Ignored when loading. Typed as required only to match Lexical's types: rich text sent through the API, CLI or MCP may not contain it. */
-    version: number;
-  };
 }
 
 
