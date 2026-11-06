@@ -123,8 +123,6 @@ export async function POST(request: Request) {
     categories.map((cat: any) => [cat.name, cat.id])
   )
 
-  console.log('Category map:', Array.from(categoryMap.entries()))
-
   // Check if products already exist
   const existingProducts = await payload.find({
     collection: 'products',
