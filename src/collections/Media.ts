@@ -23,7 +23,5 @@ export const Media: CollectionConfig = {
       hasMany: true,
     },
   ],
-  upload: {
-    disableLocalStorage: true,
-  },
+  upload: false,
 }
