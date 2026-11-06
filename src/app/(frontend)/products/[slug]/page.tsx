@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
-import { getProductBySlug } from '@/lib/products'
+import { getProductBySlug, getProducts } from '@/lib/products'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import ProductPageClient from './ProductPageClient'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -30,11 +32,12 @@ export default async function ProductPage({ params }: Props) {
     notFound()
   }
 
+  const relatedProducts = await getProducts({
+    limit: 4,
+    category: product.category.id.toString(),
+  })
+
   return (
-    <div>
-      <h1>{product.name}</h1>
-      <p>{product.description}</p>
-      <p>Product detail page - coming soon</p>
-    </div>
+    <ProductPageClient product={product} relatedProducts={relatedProducts.filter(p => p.id !== product.id)} />
   )
 }
