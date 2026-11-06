@@ -4,13 +4,28 @@ import config from '@payload-config'
 
 export async function POST(request: Request) {
   try {
-    // Secret check for security
-    const body = await request.json()
-    if (body.secret !== process.env.PAYLOAD_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const payload = await getPayload({ config })
+
+    // Check if database is empty - allow seeding without secret if empty
+    const existingProducts = await payload.find({
+      collection: 'products',
+      overrideAccess: true,
+      limit: 1,
+    })
+
+    const isEmpty = existingProducts.totalDocs === 0
+
+    // Require secret if database already has data
+    if (!isEmpty) {
+      try {
+        const body = await request.json()
+        if (body.secret !== process.env.PAYLOAD_SECRET) {
+          return NextResponse.json({ error: 'Unauthorized - database already seeded', details: 'Provide PAYLOAD_SECRET to reseed' }, { status: 401 })
+        }
+      } catch {
+        return NextResponse.json({ error: 'Unauthorized - database already seeded', details: 'Provide PAYLOAD_SECRET to reseed' }, { status: 401 })
+      }
+    }
 
     console.log('🌱 Starting seed...')
 
