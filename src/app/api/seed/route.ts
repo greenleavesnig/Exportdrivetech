@@ -14,20 +14,14 @@ export async function POST(request: Request) {
 
     console.log('🌱 Starting seed...')
 
-    // Clear existing data
-    console.log('🗑️ Clearing existing data...')
-    await payload.delete({
-      collection: 'products',
-      overrideAccess: true,
-      where: {},
-    })
-    await payload.delete({
+    // Check if categories already exist
+    const existingCategories = await payload.find({
       collection: 'product-categories',
       overrideAccess: true,
-      where: {},
+      limit: 0,
     })
 
-    // Seed Product Categories
+    // Seed Product Categories only if none exist
     console.log('📦 Creating product categories...')
     const categoryData = [
       {
@@ -101,20 +95,27 @@ export async function POST(request: Request) {
       })
       categories.push(created)
     }
-
     console.log(`✅ Created ${categories.length} categories`)
+  } else {
+    categories = existingCategories.docs
+    console.log(`✅ Found ${categories.length} existing categories, skipping creation`)
+  }
 
     // Get category IDs
-    const categoryMap = new Map(
-      categories.map((cat: any) => [cat.name, cat.id])
-    )
+  const categoryMap = new Map(
+    categories.map((cat: any) => [cat.name, cat.id])
+  )
 
-    // Seed Products
-    console.log('📦 Creating products...')
-    const productsData = await payload.create({
-      collection: 'products',
-      overrideAccess: true,
-      data: [
+  // Check if products already exist
+  const existingProducts = await payload.find({
+    collection: 'products',
+    overrideAccess: true,
+    limit: 0,
+  })
+
+  // Seed Products only if none exist
+  console.log('📦 Creating products...')
+  const productsArray = [
         // SPICES
         {
           name: 'Chili Pepper',
@@ -1360,7 +1361,8 @@ export async function POST(request: Request) {
         },
     ]
 
-    const productsData = []
+  let productsData: any[] = []
+  if (existingProducts.totalDocs === 0) {
     for (const product of productsArray) {
       const created = await payload.create({
         collection: 'products',
@@ -1369,6 +1371,11 @@ export async function POST(request: Request) {
       })
       productsData.push(created)
     }
+    console.log(`✅ Created ${productsData.length} products`)
+  } else {
+    productsData = existingProducts.docs
+    console.log(`✅ Found ${productsData.length} existing products, skipping creation`)
+  }
 
     console.log(`✅ Created ${productsData.length} products`)
     console.log('🎉 Seed completed successfully!')
