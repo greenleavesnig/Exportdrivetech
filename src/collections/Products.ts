@@ -60,12 +60,10 @@ export const Products: CollectionConfig = {
           name: 'image',
           type: 'relationship',
           relationTo: 'media',
-          required: true,
         },
         {
           name: 'alt',
           type: 'text',
-          required: true,
         },
       ],
     },
