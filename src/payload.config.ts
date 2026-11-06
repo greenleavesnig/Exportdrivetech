@@ -17,13 +17,15 @@ const dirname = path.dirname(filename)
 // Use non-pooling connection string which handles SSL better in Vercel
 const connectionString = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL
 
+// Append SSL mode to connection string for Supabase compatibility
+const sslConnectionString = connectionString
+  ? `${connectionString}${connectionString.includes('?') ? '&' : '?'}sslmode=no-verify`
+  : connectionString
+
 export default buildConfig({
   db: postgresAdapter({
     pool: {
-      connectionString,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      connectionString: sslConnectionString,
     },
   }),
   admin: {
