@@ -148,14 +148,14 @@ export default function TermsOfService() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">11. Dispute Resolution</h2>
         <p className="mb-4 text-zinc-700">
-          Any disputes arising from these Terms or our services shall be resolved through good faith negotiations. If negotiations fail, disputes shall be resolved through arbitration in accordance with the rules of the Ghana Arbitration Centre.
+          Any disputes arising from these Terms or our services shall be resolved through good faith negotiations. If negotiations fail, disputes shall be resolved through arbitration in accordance with the rules of the Nigerian Arbitration Centre.
         </p>
       </section>
 
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">12. Governing Law</h2>
         <p className="mb-4 text-zinc-700">
-          These Terms are governed by the laws of the Republic of Ghana. Any legal action shall be brought in the courts of Ghana.
+          These Terms are governed by the laws of the Federal Republic of Nigeria. Any legal action shall be brought in the courts of Nigeria.
         </p>
       </section>
 
@@ -187,8 +187,8 @@ export default function TermsOfService() {
         </p>
         <ul className="mb-4 list-inside list-disc text-zinc-700">
           <li>Email: <a href="mailto:trade@exportdrivetech.com" className="text-blue-600 underline">trade@exportdrivetech.com</a></li>
-          <li>Phone: {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+233 20 000 0000'}</li>
-          <li>Address: Accra, Ghana</li>
+          <li>Phone: {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+234 20 000 0000'}</li>
+          <li>Address: Nigeria</li>
         </ul>
       </section>
 

@@ -165,7 +165,7 @@ export default function HomeClient() {
           </div>
         </div>
       )}
-      <div className="topbar"><div className="shell"><span>Accra, Ghana · Serving global buyers</span><span>Available for 2025/26 contracts</span></div></div>
+      <div className="topbar"><div className="shell"><span>Nigeria · Serving global buyers</span><span>Available for 2025/26 contracts</span></div></div>
       
       <header className={isSticky ? 'sticky' : ''}>
         <div className="shell nav">
@@ -234,7 +234,7 @@ export default function HomeClient() {
           </form>
         </div>
       </section>
-      <footer><div className="shell footer"><div><a href="#" className="brand inverse"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></a><p>Quality from the source. Reliability to your door.</p></div><div><a href="#about">About</a><a href="#products">Products</a><a href="#services">Services</a><a href="#rfq">Request a quote</a></div><div><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Service</a><a href="/admin">Admin Panel</a></div></div><div className="shell copyright"><span>© 2025 ExportDriveTech Agro Trading</span><span>Accra · Ghana</span></div></footer>
+      <footer><div className="shell footer"><div><a href="#" className="brand inverse"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></a><p>Quality from the source. Reliability to your door.</p></div><div><a href="#about">About</a><a href="#products">Products</a><a href="#services">Services</a><a href="#rfq">Request a quote</a></div><div><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Service</a><a href="/admin">Admin Panel</a></div></div><div className="shell copyright"><span>© 2025 ExportDriveTech Agro Trading</span><span>Nigeria</span></div></footer>
 
       {/* Back to Top Button */}
       {showBackToTop && (
