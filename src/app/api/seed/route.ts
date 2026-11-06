@@ -6,25 +6,16 @@ export async function POST(request: Request) {
   try {
     const payload = await getPayload({ config })
 
-    // Check if database is empty - allow seeding without secret if empty
-    const checkProducts = await payload.find({
-      collection: 'products',
-      overrideAccess: true,
-      limit: 1,
-    })
-
-    const isEmpty = checkProducts.totalDocs === 0
-
-    // Require secret if database already has data
-    if (!isEmpty) {
-      try {
-        const body = await request.json()
-        if (body.secret !== process.env.PAYLOAD_SECRET) {
-          return NextResponse.json({ error: 'Unauthorized - database already seeded', details: 'Provide PAYLOAD_SECRET to reseed' }, { status: 401 })
-        }
-      } catch {
-        return NextResponse.json({ error: 'Unauthorized - database already seeded', details: 'Provide PAYLOAD_SECRET to reseed' }, { status: 401 })
+    // Check if this is a destructive reseed (clear existing data)
+    let isDestructive = false
+    try {
+      const body = await request.json()
+      isDestructive = body.clear === true
+      if (isDestructive && body.secret !== process.env.PAYLOAD_SECRET) {
+        return NextResponse.json({ error: 'Unauthorized - destructive operations require PAYLOAD_SECRET' }, { status: 401 })
       }
+    } catch {
+      // No body or invalid JSON - non-destructive mode
     }
 
     console.log('🌱 Starting seed...')
@@ -102,7 +93,17 @@ export async function POST(request: Request) {
     ]
 
   let categories: any[] = []
-  if (existingCategories.totalDocs === 0) {
+  if (existingCategories.totalDocs === 0 || isDestructive) {
+    if (isDestructive) {
+      // Clear existing categories if destructive mode
+      for (const cat of existingCategories.docs) {
+        await payload.delete({
+          collection: 'product-categories',
+          id: cat.id,
+          overrideAccess: true,
+        })
+      }
+    }
     for (const cat of categoryData) {
       const created = await payload.create({
         collection: 'product-categories',
@@ -129,8 +130,9 @@ export async function POST(request: Request) {
     limit: 0,
   })
 
-  // Seed Products only if none exist
+  // Seed Products - add missing ones or clear if destructive
   console.log('📦 Creating products...')
+  const existingProductSlugs = new Set(existingProducts.docs.map((p: any) => p.slug))
   const productsArray = [
         // SPICES
         {
@@ -1378,7 +1380,16 @@ export async function POST(request: Request) {
     ]
 
   let productsData: any[] = []
-  if (existingProducts.totalDocs === 0) {
+  if (isDestructive) {
+    // Clear existing products if destructive mode
+    for (const product of existingProducts.docs) {
+      await payload.delete({
+        collection: 'products',
+        id: product.id,
+        overrideAccess: true,
+      })
+    }
+    // Create all products
     for (const product of productsArray) {
       const created = await payload.create({
         collection: 'products',
@@ -1387,13 +1398,27 @@ export async function POST(request: Request) {
       })
       productsData.push(created)
     }
-    console.log(`✅ Created ${productsData.length} products`)
+    console.log(`✅ Created ${productsData.length} products (destructive mode)`)
   } else {
-    productsData = existingProducts.docs
-    console.log(`✅ Found ${productsData.length} existing products, skipping creation`)
+    // Add only missing products
+    let createdCount = 0
+    for (const product of productsArray) {
+      if (!existingProductSlugs.has(product.slug)) {
+        const created = await payload.create({
+          collection: 'products',
+          overrideAccess: true,
+          data: product,
+        })
+        productsData.push(created)
+        createdCount++
+      }
+    }
+    // Include existing products in the response
+    productsData = [...existingProducts.docs, ...productsData]
+    console.log(`✅ Created ${createdCount} new products (non-destructive mode)`)
+    console.log(`✅ Total products: ${productsData.length}`)
   }
 
-    console.log(`✅ Created ${productsData.length} products`)
     console.log('🎉 Seed completed successfully!')
 
     return NextResponse.json({
