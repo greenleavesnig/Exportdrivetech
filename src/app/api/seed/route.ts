@@ -137,7 +137,7 @@ export async function POST(request: Request) {
           season: 'October - February',
           origin: 'Nigeria',
           grade: 'Grade A',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -159,7 +159,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Premium',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -181,7 +181,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria, Kaduna',
           grade: 'Grade A',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -203,7 +203,7 @@ export async function POST(request: Request) {
           season: 'August - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Turmeric',
@@ -224,7 +224,7 @@ export async function POST(request: Request) {
           season: 'November - February',
           origin: 'Nigeria',
           grade: 'Grade A',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Hibiscus Flower',
@@ -245,7 +245,7 @@ export async function POST(request: Request) {
           season: 'November - March',
           origin: 'Nigeria',
           grade: 'Grade A',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Cloves',
@@ -266,7 +266,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Premium',
-          status: 'published',
+          status: 'published' as const,
         },
         // CEREALS & GRAINS
         {
@@ -288,7 +288,7 @@ export async function POST(request: Request) {
           season: 'September - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -310,7 +310,7 @@ export async function POST(request: Request) {
           season: 'August - November',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -332,7 +332,7 @@ export async function POST(request: Request) {
           season: 'September - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Millet',
@@ -353,7 +353,7 @@ export async function POST(request: Request) {
           season: 'October - January',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Wheat',
@@ -374,7 +374,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Imported',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Guinea Corn',
@@ -395,7 +395,7 @@ export async function POST(request: Request) {
           season: 'August - October',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         // FRUITS
         {
@@ -417,7 +417,7 @@ export async function POST(request: Request) {
           season: 'April - July',
           origin: 'Nigeria',
           grade: 'Export Grade',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -439,7 +439,7 @@ export async function POST(request: Request) {
           season: 'March - July',
           origin: 'Nigeria, Benue',
           grade: 'Export Grade',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Banana',
@@ -460,7 +460,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Export Grade',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Plantain',
@@ -481,7 +481,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Papaya',
@@ -502,7 +502,7 @@ export async function POST(request: Request) {
           season: 'January - April',
           origin: 'Nigeria',
           grade: 'Export Grade',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Kola Nuts',
@@ -523,7 +523,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Premium',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Citrus (Oranges)',
@@ -544,7 +544,7 @@ export async function POST(request: Request) {
           season: 'November - March',
           origin: 'Nigeria',
           grade: 'Export Grade',
-          status: 'published',
+          status: 'published' as const,
         },
         // VEGETABLES
         {
@@ -566,7 +566,7 @@ export async function POST(request: Request) {
           season: 'December - April',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -588,7 +588,7 @@ export async function POST(request: Request) {
           season: 'November - March',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Okra',
@@ -609,7 +609,7 @@ export async function POST(request: Request) {
           season: 'October - January',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Peppers (Atarodo)',
@@ -630,7 +630,7 @@ export async function POST(request: Request) {
           season: 'November - February',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Ugu (Pumpkin Leaves)',
@@ -651,7 +651,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Fresh',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Waterleaf',
@@ -672,7 +672,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Fresh',
-          status: 'published',
+          status: 'published' as const,
         },
         // SEEDS & NUTS
         {
@@ -694,7 +694,7 @@ export async function POST(request: Request) {
           season: 'October - January',
           origin: 'Nigeria',
           grade: 'Export Grade',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -716,7 +716,7 @@ export async function POST(request: Request) {
           season: 'February - May',
           origin: 'Nigeria',
           grade: 'W240, W320',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -738,7 +738,7 @@ export async function POST(request: Request) {
           season: 'August - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -760,7 +760,7 @@ export async function POST(request: Request) {
           season: 'May - September',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Melon Seeds (Egusi)',
@@ -781,7 +781,7 @@ export async function POST(request: Request) {
           season: 'September - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Soybeans',
@@ -802,7 +802,7 @@ export async function POST(request: Request) {
           season: 'October - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Castor Seeds',
@@ -823,7 +823,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Industrial',
-          status: 'published',
+          status: 'published' as const,
         },
         // HERBS & MEDICINAL
         {
@@ -845,7 +845,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Organic',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Bitter Leaf',
@@ -866,7 +866,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Fresh',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Scent Leaf (Nchawu)',
@@ -887,7 +887,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Fresh',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Uziza Seeds',
@@ -908,7 +908,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Premium',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Neem Seeds',
@@ -929,7 +929,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Organic',
-          status: 'published',
+          status: 'published' as const,
         },
         // TUBERS & ROOTS
         {
@@ -951,7 +951,7 @@ export async function POST(request: Request) {
           season: 'August - November',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -973,7 +973,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -995,7 +995,7 @@ export async function POST(request: Request) {
           season: 'November - February',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Irish Potato',
@@ -1016,7 +1016,7 @@ export async function POST(request: Request) {
           season: 'March - May',
           origin: 'Nigeria, Plateau',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Cocoyam',
@@ -1037,7 +1037,7 @@ export async function POST(request: Request) {
           season: 'September - November',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         // LEGUMES
         {
@@ -1059,7 +1059,7 @@ export async function POST(request: Request) {
           season: 'September - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -1081,7 +1081,7 @@ export async function POST(request: Request) {
           season: 'October - December',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Pigeon Pea',
@@ -1102,7 +1102,7 @@ export async function POST(request: Request) {
           season: 'August - October',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Bambara Beans',
@@ -1123,7 +1123,7 @@ export async function POST(request: Request) {
           season: 'September - November',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Lima Beans',
@@ -1144,7 +1144,7 @@ export async function POST(request: Request) {
           season: 'August - October',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         // OIL CROPS
         {
@@ -1166,7 +1166,7 @@ export async function POST(request: Request) {
           season: 'May - September',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
           featured: true,
         },
         {
@@ -1188,7 +1188,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Refined',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Palm Oil',
@@ -1209,7 +1209,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Crude',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Castor Oil',
@@ -1230,7 +1230,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Refined',
-          status: 'published',
+          status: 'published' as const,
         },
         // LIVESTOCK FEED
         {
@@ -1252,7 +1252,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Groundnut Cake',
@@ -1273,7 +1273,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Cottonseed Cake',
@@ -1294,7 +1294,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Palm Kernel Cake',
@@ -1315,7 +1315,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Grade 1',
-          status: 'published',
+          status: 'published' as const,
         },
         // OTHERS
         {
@@ -1337,7 +1337,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Industrial',
-          status: 'published',
+          status: 'published' as const,
         },
         {
           name: 'Charcoal',
@@ -1358,7 +1358,7 @@ export async function POST(request: Request) {
           season: 'Year-round',
           origin: 'Nigeria',
           grade: 'Premium',
-          status: 'published',
+          status: 'published' as const,
         },
     ]
 

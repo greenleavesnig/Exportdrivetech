@@ -34,13 +34,12 @@ export default buildConfig({
     },
   }),
   email: resendAdapter({
-    apiKey: process.env.RESEND_API_KEY,
-    defaultFromAddress: process.env.RESEND_FROM_EMAIL,
+    apiKey: process.env.RESEND_API_KEY || '',
+    defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'trade@exportdrivetech.com',
     defaultFromName: 'ExportDriveTech',
   }),
   storage: {
     vercelBlob: vercelBlobStorage({
-      allowedMimeTypes: ['image/*', 'application/pdf'],
       bucket: process.env.BLOB_READ_WRITE_TOKEN ? 'exportdrivetech-media' : undefined,
     }),
   },
@@ -48,7 +47,6 @@ export default buildConfig({
     user: Admins.slug,
     meta: {
       titleSuffix: ' | ExportDriveTech Admin',
-      favicon: '/favicon.ico',
       ogImage: '/og-image.png',
     },
     dateFormat: 'DD/MM/YYYY',
@@ -63,7 +61,6 @@ export default buildConfig({
     map: {
       width: 300,
     },
-    dateFormat: 'DD/MM/YYYY',
     timeFormat: 'HH:mm',
   },
   i18n: {
