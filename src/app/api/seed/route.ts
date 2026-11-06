@@ -29,72 +29,78 @@ export async function POST(request: Request) {
 
     // Seed Product Categories
     console.log('📦 Creating product categories...')
-    const categories = await payload.create({
-      collection: 'product-categories',
-      overrideAccess: true,
-      data: [
-        {
-          name: 'Spices',
-          description: 'Premium spices sourced from Nigeria and West Africa',
-          icon: '🌶️',
-          order: 1,
-        },
-        {
-          name: 'Cereals & Grains',
-          description: 'High-quality grains and cereals for food and feed',
-          icon: '🌾',
-          order: 2,
-        },
-        {
-          name: 'Fruits',
-          description: 'Fresh and dried fruits from Nigerian farms',
-          icon: '🍎',
-          order: 3,
-        },
-        {
-          name: 'Vegetables',
-          description: 'Nutritious vegetables and leafy greens',
-          icon: '🥬',
-          order: 4,
-        },
-        {
-          name: 'Seeds & Nuts',
-          description: 'Edible seeds, nuts, and oil crops',
-          icon: '🥜',
-          order: 5,
-        },
-        {
-          name: 'Herbs & Medicinal',
-          description: 'Dried herbs and medicinal plants',
-          icon: '🌿',
-          order: 6,
-        },
-        {
-          name: 'Tubers & Roots',
-          description: 'Nigerian tuber crops and root vegetables',
-          icon: '🥔',
-          order: 7,
-        },
-        {
-          name: 'Legumes',
-          description: 'Beans, peas, and other leguminous crops',
-          icon: '🫘',
-          order: 8,
-        },
-        {
-          name: 'Oil Crops',
-          description: 'Palm oil and other oil-producing crops',
-          icon: '🌴',
-          order: 9,
-        },
-        {
-          name: 'Livestock Feed',
-          description: 'Animal feed and raw materials',
-          icon: '🐄',
-          order: 10,
-        },
-      ],
-    })
+    const categoryData = [
+      {
+        name: 'Spices',
+        description: 'Premium spices sourced from Nigeria and West Africa',
+        icon: '🌶️',
+        order: 1,
+      },
+      {
+        name: 'Cereals & Grains',
+        description: 'High-quality grains and cereals for food and feed',
+        icon: '🌾',
+        order: 2,
+      },
+      {
+        name: 'Fruits',
+        description: 'Fresh and dried fruits from Nigerian farms',
+        icon: '🍎',
+        order: 3,
+      },
+      {
+        name: 'Vegetables',
+        description: 'Nutritious vegetables and leafy greens',
+        icon: '🥬',
+        order: 4,
+      },
+      {
+        name: 'Seeds & Nuts',
+        description: 'Edible seeds, nuts, and oil crops',
+        icon: '🥜',
+        order: 5,
+      },
+      {
+        name: 'Herbs & Medicinal',
+        description: 'Dried herbs and medicinal plants',
+        icon: '🌿',
+        order: 6,
+      },
+      {
+        name: 'Tubers & Roots',
+        description: 'Nigerian tuber crops and root vegetables',
+        icon: '🥔',
+        order: 7,
+      },
+      {
+        name: 'Legumes',
+        description: 'Beans, peas, and other leguminous crops',
+        icon: '🫘',
+        order: 8,
+      },
+      {
+        name: 'Oil Crops',
+        description: 'Palm oil and other oil-producing crops',
+        icon: '🌴',
+        order: 9,
+      },
+      {
+        name: 'Livestock Feed',
+        description: 'Animal feed and raw materials',
+        icon: '🐄',
+        order: 10,
+      },
+    ]
+
+    const categories = []
+    for (const cat of categoryData) {
+      const created = await payload.create({
+        collection: 'product-categories',
+        overrideAccess: true,
+        data: cat,
+      })
+      categories.push(created)
+    }
 
     console.log(`✅ Created ${categories.length} categories`)
 
@@ -1352,8 +1358,17 @@ export async function POST(request: Request) {
           grade: 'Premium',
           status: 'published',
         },
-      ],
-    })
+    ]
+
+    const productsData = []
+    for (const product of productsArray) {
+      const created = await payload.create({
+        collection: 'products',
+        overrideAccess: true,
+        data: product,
+      })
+      productsData.push(created)
+    }
 
     console.log(`✅ Created ${productsData.length} products`)
     console.log('🎉 Seed completed successfully!')
