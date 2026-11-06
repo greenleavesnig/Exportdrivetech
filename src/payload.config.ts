@@ -14,18 +14,19 @@ import { ProductCategories } from './collections/ProductCategories'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// Use non-pooling connection string which handles SSL better in Vercel
-const connectionString = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL
-
-// Append SSL mode to connection string for Supabase compatibility
-const sslConnectionString = connectionString
-  ? `${connectionString}${connectionString.includes('?') ? '&' : '?'}sslmode=no-verify`
-  : connectionString
+// Use pooled connection string to avoid connection limit issues
+const connectionString = process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING
 
 export default buildConfig({
   db: postgresAdapter({
     pool: {
-      connectionString: sslConnectionString,
+      connectionString,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
   }),
   admin: {
