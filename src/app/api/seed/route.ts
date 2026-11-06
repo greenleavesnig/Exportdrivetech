@@ -123,6 +123,11 @@ export async function POST(request: Request) {
     categories.map((cat: any) => [cat.name, cat.id])
   )
 
+  // Also create a slug-based map for product references
+  const categorySlugMap = new Map(
+    categories.map((cat: any) => [cat.name, cat])
+  )
+
   // Check if products already exist
   const existingProducts = await payload.find({
     collection: 'products',
@@ -138,7 +143,7 @@ export async function POST(request: Request) {
         {
           name: 'Chili Pepper',
           slug: 'chili-pepper',
-          category: categoryMap.get('Spices'),
+          category: categorySlugMap.get('Spices'),
           description: 'Premium dried chili peppers with vibrant color and heat',
           fullDescription: 'Our chili peppers are carefully selected and dried to preserve their natural color, aroma, and heat. Available in various grades for different culinary applications.',
           specifications: [
@@ -160,7 +165,7 @@ export async function POST(request: Request) {
         {
           name: 'Black Pepper',
           slug: 'black-pepper',
-          category: categoryMap.get('Spices'),
+          category: categorySlugMap.get('Spices'),
           description: 'Aromatic black pepper with bold flavor profile',
           fullDescription: 'Premium black pepper sourced from trusted growers. Excellent quality with consistent size and high essential oil content.',
           specifications: [
@@ -182,7 +187,7 @@ export async function POST(request: Request) {
         {
           name: 'Ginger',
           slug: 'ginger',
-          category: categoryMap.get('Spices'),
+          category: categorySlugMap.get('Spices'),
           description: 'Fresh and dried ginger with strong aroma',
           fullDescription: 'Premium Nigerian ginger known for its strong aroma, high pungency, and excellent oil content. Used in food, beverages, and pharmaceutical applications.',
           specifications: [
@@ -204,7 +209,7 @@ export async function POST(request: Request) {
         {
           name: 'Garlic',
           slug: 'garlic',
-          category: categoryMap.get('Spices'),
+          category: categorySlugMap.get('Spices'),
           description: 'Dried garlic bulbs with intense flavor',
           fullDescription: 'Premium dried garlic with high allicin content. Pungent aroma and robust flavor for culinary and medicinal use.',
           specifications: [
@@ -225,7 +230,7 @@ export async function POST(request: Request) {
         {
           name: 'Turmeric',
           slug: 'turmeric',
-          category: categoryMap.get('Spices'),
+          category: categorySlugMap.get('Spices'),
           description: 'Golden turmeric fingers with high curcumin',
           fullDescription: 'Premium turmeric fingers with high curcumin content. Used as spice, coloring agent, and for its medicinal properties.',
           specifications: [
@@ -246,7 +251,7 @@ export async function POST(request: Request) {
         {
           name: 'Hibiscus Flower',
           slug: 'hibiscus-flower',
-          category: categoryMap.get('Spices'),
+          category: categorySlugMap.get('Spices'),
           description: 'Deep crimson hibiscus flowers for tea and culinary use',
           fullDescription: 'Dried hibiscus flowers with rich color and tart flavor. Perfect for hibiscus tea, natural food coloring, and herbal blends.',
           specifications: [
@@ -267,7 +272,7 @@ export async function POST(request: Request) {
         {
           name: 'Cloves',
           slug: 'cloves',
-          category: categoryMap.get('Spices'),
+          category: categorySlugMap.get('Spices'),
           description: 'Aromatic dried cloves for culinary and medicinal use',
           fullDescription: 'Premium dried cloves with high oil content and strong aroma. Used in cooking, medicine, and as a flavoring agent.',
           specifications: [
