@@ -1,0 +1,156 @@
+/* ExportDriveTech Admin Custom Styles */
+
+/* Custom Colors */
+:root {
+  --edt-primary: #166534;
+  --edt-primary-light: #22c55e;
+  --edt-secondary: #ca8a04;
+  --edt-bg: #f8fafc;
+  --edt-surface: #ffffff;
+  --edt-text: #1e293b;
+  --edt-text-light: #64748b;
+  --edt-border: #e2e8f0;
+}
+
+/* Admin Header */
+[class*="adminHeader"] {
+  background: linear-gradient(135deg, var(--edt-primary) 0%, var(--edt-primary-light) 100%);
+  border-bottom: 3px solid var(--edt-secondary);
+}
+
+/* Navigation */
+[class*="nav"] {
+  background-color: var(--edt-surface);
+  border-right: 1px solid var(--edt-border);
+}
+
+[class*="navItem"]:hover {
+  background-color: rgba(22, 101, 52, 0.1);
+  color: var(--edt-primary);
+}
+
+/* Buttons */
+[class*="Button"] {
+  background-color: var(--edt-primary);
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+[class*="Button"]:hover {
+  background-color: var(--edt-primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
+}
+
+/* Table Styles */
+[class*="Table"] {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[class*="TableHead"] {
+  background-color: var(--edt-primary);
+  color: white;
+}
+
+[class*="TableRow"]:hover {
+  background-color: rgba(22, 101, 52, 0.05);
+}
+
+/* Cards */
+[class*="Card"] {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--edt-border);
+}
+
+/* Form Fields */
+[class*="Field"] {
+  border-radius: 8px;
+  border: 1px solid var(--edt-border);
+  transition: all 0.2s ease;
+}
+
+[class*="Field"]:focus {
+  border-color: var(--edt-primary);
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
+}
+
+/* Status Badges */
+[class*="Badge"] {
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Welcome Banner */
+.welcome-banner {
+  background: linear-gradient(135deg, var(--edt-primary) 0%, var(--edt-primary-light) 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
+}
+
+.welcome-banner h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.welcome-banner p {
+  font-size: 16px;
+  opacity: 0.9;
+  margin-bottom: 16px;
+}
+
+.welcome-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-card h3 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-card p {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--edt-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--edt-primary-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--edt-primary);
+}

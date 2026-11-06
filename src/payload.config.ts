@@ -33,12 +33,26 @@ export default buildConfig({
   }),
   admin: {
     user: Admins.slug,
-    dashboard: {
-      widgets: [],
-      defaultLayout: [
-        { widgetSlug: 'collections', width: 'full' },
-      ],
+    css: 'src/app/(payload)/admin/custom.css',
+    meta: {
+      titleSuffix: ' | ExportDriveTech Admin',
+      favicon: '/favicon.ico',
+      ogImage: '/og-image.png',
     },
+    dateFormat: 'DD/MM/YYYY',
+    theme: 'light',
+    weekStartDay: 1, // Monday
+    defaultLimit: 25,
+    pagination: {
+      defaultLimit: 25,
+      limits: [10, 25, 50, 100],
+    },
+    type: 'root',
+    map: {
+      width: 300,
+    },
+    dateFormat: 'DD/MM/YYYY',
+    timeFormat: 'HH:mm',
   },
   i18n: {
     fallbackLanguage: 'en',
