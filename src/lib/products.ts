@@ -2,11 +2,11 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 export type Product = {
-  id: string
+  id: number
   name: string
   slug: string
   category: {
-    id: string
+    id: number
     name: string
     description?: string
     icon?: string
@@ -15,14 +15,14 @@ export type Product = {
   fullDescription?: any
   images?: Array<{
     image: {
-      id: string
+      id: number
       url: string
       alt?: string
     }
     alt: string
   }>
   featuredImage?: {
-    id: string
+    id: number
     url: string
     alt?: string
   }
@@ -57,7 +57,7 @@ export type Product = {
 }
 
 export type ProductCategory = {
-  id: string
+  id: number
   name: string
   description?: string
   icon?: string

@@ -110,7 +110,7 @@ export async function submitRFQ(
       depth: 1,
     })
     
-    const categoryName = productDoc?.category?.name || 'Unknown'
+    const categoryName = typeof productDoc?.category === 'object' ? productDoc.category.name : 'Unknown'
     const productName = productDoc?.name || 'Unknown'
 
     const submission = await payload.create({
@@ -124,8 +124,8 @@ export async function submitRFQ(
         email,
         phone,
         preferredContact,
-        category: categoryId,
-        product: productId,
+        category: categoryId as number,
+        product: productId as number,
         quantity,
         unit: unit as 'metric-tons' | 'kilograms' | 'containers',
         packaging: text(formData, 'packaging', 100),

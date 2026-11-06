@@ -10,6 +10,7 @@ async function seed() {
   console.log('📦 Creating product categories...')
   const categories = await payload.create({
     collection: 'product-categories',
+    overrideAccess: true,
     data: [
       {
         name: 'Spices',
@@ -57,17 +58,18 @@ async function seed() {
     overrideAccess: true,
   })
 
-  console.log(`✅ Created ${categories.length} categories`)
+  console.log(`✅ Created ${categories.docs.length} categories`)
 
   // Get category IDs
   const categoryMap = new Map(
-    categories.map((cat: any) => [cat.name, cat.id])
+    categories.docs.map((cat: any) => [cat.name, cat.id])
   )
 
   // Seed Products
   console.log('📦 Creating products...')
   const products = await payload.create({
     collection: 'products',
+    overrideAccess: true,
     data: [
       // Spices
       {

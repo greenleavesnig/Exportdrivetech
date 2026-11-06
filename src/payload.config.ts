@@ -28,7 +28,6 @@ export default buildConfig({
     dashboard: {
       widgets: [],
       defaultLayout: [
-        { widgetSlug: 'activity', width: 'full' },
         { widgetSlug: 'collections', width: 'full' },
       ],
     },
