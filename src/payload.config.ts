@@ -21,6 +21,9 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
   }),
   admin: {
