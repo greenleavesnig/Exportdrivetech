@@ -38,11 +38,6 @@ export default buildConfig({
     defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'trade@exportdrivetech.com',
     defaultFromName: 'ExportDriveTech',
   }),
-  storage: {
-    vercelBlob: vercelBlobStorage({
-      bucket: process.env.BLOB_READ_WRITE_TOKEN ? 'exportdrivetech-media' : undefined,
-    }),
-  },
   admin: {
     user: Admins.slug,
     meta: {
