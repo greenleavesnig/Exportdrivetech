@@ -59,25 +59,12 @@ export default function ProductCatalog({ categories, products, loading }: Produc
                 key={product.id}
                 className="product-item"
               >
-                {product.featuredImage?.url ? (
-                  <Image
-                    src={product.featuredImage.url}
-                    alt={product.featuredImage.alt || product.name}
-                    width={80}
-                    height={64}
-                    style={{ objectFit: 'cover', borderRadius: '6px' }}
-                  />
-                ) : (
-                  <div className="product-item-placeholder">
-                    {product.category?.icon || '📦'}
-                  </div>
-                )}
                 <div className="product-item-info">
                   <div className="product-item-name">{product.name}</div>
                   {product.description && (
                     <div className="product-item-desc">
-                      {product.description.length > 60
-                        ? `${product.description.slice(0, 60)}...`
+                      {product.description.length > 80
+                        ? `${product.description.slice(0, 80)}...`
                         : product.description}
                     </div>
                   )}

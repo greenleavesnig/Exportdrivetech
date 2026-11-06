@@ -1,6 +1,8 @@
 import path from 'path'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { en as adminLanguage } from '@payloadcms/translations/languages/en'
 import { fileURLToPath } from 'url'
 import { Admins } from './collections/Admins'
@@ -31,6 +33,17 @@ export default buildConfig({
       connectionTimeoutMillis: 10000,
     },
   }),
+  email: resendAdapter({
+    apiKey: process.env.RESEND_API_KEY,
+    defaultFromAddress: process.env.RESEND_FROM_EMAIL,
+    defaultFromName: 'ExportDriveTech',
+  }),
+  storage: {
+    vercelBlob: vercelBlobStorage({
+      allowedMimeTypes: ['image/*', 'application/pdf'],
+      bucket: process.env.BLOB_READ_WRITE_TOKEN ? 'exportdrivetech-media' : undefined,
+    }),
+  },
   admin: {
     user: Admins.slug,
     meta: {

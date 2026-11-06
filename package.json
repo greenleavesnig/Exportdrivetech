@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.93.0",
+    "@payloadcms/email-resend": "^3.93.0",
     "@payloadcms/next": "^3.93.0",
+    "@payloadcms/storage-vercel-blob": "^3.93.0",
     "dotenv": "^18.0.9",
     "drizzle-orm": "^0.45.4",
     "html-react-parser": "^6.1.9",
