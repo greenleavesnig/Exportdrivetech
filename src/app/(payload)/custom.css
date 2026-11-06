@@ -1,0 +1,189 @@
+/* Custom Admin Panel Styles for ExportDriveTech */
+
+:root {
+  --brand-forest: #123c2b;
+  --brand-leaf: #2f684a;
+  --brand-lime: #d8ee61;
+}
+
+/* Brand customization */
+.payload-branding h1, 
+.payload-logo {
+  color: var(--brand-forest) !important;
+}
+
+/* Custom accent color */
+.payload-button--primary,
+.payload-button--icon.payload-button--with-hover:hover {
+  background-color: var(--brand-forest) !important;
+  border-color: var(--brand-forest) !important;
+}
+
+.payload-button--primary:hover {
+  background-color: var(--brand-leaf) !important;
+}
+
+/* Navigation active state */
+.nav__link--active {
+  color: var(--brand-forest) !important;
+  border-left-color: var(--brand-lime) !important;
+}
+
+/* Table headers */
+.collection-list__header {
+  background-color: #f4f0e6 !important;
+}
+
+/* Success states */
+.notification--success {
+  background-color: #edf3e5 !important;
+  border-left-color: var(--brand-leaf) !important;
+}
+
+/* Links */
+a {
+  color: var(--brand-forest) !important;
+}
+
+a:hover {
+  color: var(--brand-leaf) !important;
+}
+
+/* Welcome message customization */
+.dashboard__welcome {
+  background: linear-gradient(135deg, var(--brand-forest), var(--brand-leaf));
+  color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+/* Cards and panels */
+.card {
+  border: 1px solid #d9ddd6;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(18, 60, 43, 0.05);
+}
+
+/* Sidebar branding */
+.template-default__nav {
+  background-color: #f4f0e6 !important;
+}
+
+/* Better spacing */
+.collection-list {
+  padding: 1.5rem;
+}
+
+/* Typography improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Status badges */
+.pill--success {
+  background-color: var(--brand-lime) !important;
+  color: var(--brand-forest) !important;
+}
+
+/* Form inputs focus */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--brand-leaf) !important;
+  box-shadow: 0 0 0 2px rgba(47, 104, 74, 0.1) !important;
+}
+
+/* Upload area */
+.file-field__upload-button {
+  border: 2px dashed var(--brand-forest) !important;
+}
+
+.file-field__upload-button:hover {
+  background-color: rgba(47, 104, 74, 0.05) !important;
+}
+
+/* Improved table rows */
+.collection-list__row:hover {
+  background-color: rgba(47, 104, 74, 0.03) !important;
+}
+
+/* Better disabled state */
+button:disabled,
+input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Custom scrollbar for sidebar */
+.template-default__nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.template-default__nav::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.template-default__nav::-webkit-scrollbar-thumb {
+  background: var(--brand-leaf);
+  border-radius: 3px;
+}
+
+.template-default__nav::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-forest);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .dashboard__welcome {
+    padding: 1.5rem;
+  }
+  
+  .collection-list {
+    padding: 1rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .template-default__nav,
+  .collection-list__header-actions {
+    display: none !important;
+  }
+}
+
+/* Dark mode support (if enabled) */
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: #1a1a1a;
+    border-color: #333;
+  }
+}
+
+/* Accessibility improvements */
+*:focus-visible {
+  outline: 2px solid var(--brand-lime);
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.payload-loading {
+  color: var(--brand-forest);
+}
+
+/* Success checkmarks */
+.check-icon {
+  color: var(--brand-leaf);
+}
+
+/* Error states */
+.error {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+/* Info messages */
+.info {
+  background-color: #e0f2fe;
+  border-left-color: #0284c7;
+}

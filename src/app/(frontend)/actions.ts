@@ -2,16 +2,8 @@
 
 import config from '@payload-config'
 import { getPayload } from 'payload'
-
-const productGroups: Record<string, string[]> = {
-  Spices: ['Chili', 'Black Pepper', 'Hibiscus Flower', 'Sunflower'],
-  Cereals: ['Sorghum', 'Millet'],
-  Fruits: ['Banana', 'Bitter Kola', 'Kola Nuts', 'Avocado', 'Mango', 'Orange', 'Lime', 'Lemon'],
-  Vegetables: ['Okra', 'Moringa Leaves', 'Sweet Potato'],
-  'Seeds & Nuts': ['Sesame Seeds', 'Peanut', 'Cashew Nuts', 'Soya Beans', 'Cannery Seeds', 'Coconut Chips'],
-  Herbs: ['Hibiscus Flower Whole', 'Moringa Powder'],
-  Others: ['Briquettes & Charcoal', 'Pellet', 'Wood Chips'],
-}
+import { headers } from 'next/headers'
+import { rateLimit, getClientIp, isHoneypotTriggered, isDisposableEmail } from '@/lib/rateLimit'
 
 export type RFQActionState = {
   ok: boolean
@@ -26,7 +18,13 @@ const text = (formData: FormData, name: string, max = 500) =>
   String(formData.get(name) ?? '').trim().slice(0, max)
 
 const escapeHtml = (value: string) =>
-  value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#x27;')
+    .replaceAll('`', '&#x60;')
 
 async function sendEmail(to: string[], subject: string, html: string) {
   const apiKey = process.env.RESEND_API_KEY
@@ -48,8 +46,29 @@ export async function submitRFQ(
   _previousState: RFQActionState,
   formData: FormData,
 ): Promise<RFQActionState> {
+  // Honeypot check
   const honeypot = text(formData, 'website', 100)
-  if (honeypot) return { ok: true, message: 'Request received.' }
+  if (isHoneypotTriggered(honeypot)) {
+    return { ok: true, message: 'Request received.' }
+  }
+
+  // Rate limiting check
+  const headersList = await headers()
+  const request = new Request('http://localhost', { headers: headersList })
+  const clientIp = getClientIp(request)
+  
+  const rateLimitResult = rateLimit(clientIp, {
+    maxRequests: 5,  // 5 submissions
+    windowSeconds: 3600,  // per hour
+  })
+  
+  if (!rateLimitResult.success) {
+    const resetTime = new Date(rateLimitResult.reset).toLocaleTimeString()
+    return {
+      ok: false,
+      message: `Rate limit exceeded. Please try again after ${resetTime}.`,
+    }
+  }
 
   const buyerName = text(formData, 'buyerName', 120)
   const company = text(formData, 'company', 160)
@@ -72,6 +91,9 @@ export async function submitRFQ(
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { ok: false, message: 'Please enter a valid business email address.' }
+  }
+  if (isDisposableEmail(email)) {
+    return { ok: false, message: 'Please use a business email address, not a temporary email service.' }
   }
   if (!Number.isFinite(quantity) || quantity <= 0 || !['metric-tons', 'kilograms', 'containers'].includes(unit)) {
     return { ok: false, message: 'Please enter a valid quantity and unit.' }
@@ -168,7 +190,12 @@ export async function submitRFQ(
       email,
       emailSent,
     }
-  } catch {
-    return { ok: false, message: 'We could not submit your request. Please try again or contact us directly.' }
+  } catch (error) {
+    console.error('RFQ submission failed:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { 
+      ok: false, 
+      message: `We could not submit your request: ${errorMessage}. Please try again or contact us directly.` 
+    }
   }
 }

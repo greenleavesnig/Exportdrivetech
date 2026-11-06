@@ -140,7 +140,7 @@ export default function PrivacyPolicy() {
         </p>
         <ul className="mb-4 list-inside list-disc text-zinc-700">
           <li>Email: <a href="mailto:trade@exportdrivetech.com" className="text-blue-600 underline">trade@exportdrivetech.com</a></li>
-          <li>Phone: +233 20 000 0000</li>
+          <li>Phone: {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+233 20 000 0000'}</li>
           <li>Address: Accra, Ghana</li>
         </ul>
       </section>

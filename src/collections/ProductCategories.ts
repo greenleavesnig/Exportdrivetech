@@ -38,26 +38,14 @@ export const ProductCategories: CollectionConfig = {
         description: 'Display order (lower numbers appear first)',
       },
     },
-  ],
-  hooks: {
-    afterChange: [
-      async ({ doc, req }) => {
-        // Count products in this category
-        const products = await req.payload.find({
-          collection: 'products',
-          where: {
-            category: {
-              equals: doc.id,
-            },
-          },
-          depth: 0,
-          limit: 0,
-        })
-        return {
-          ...doc,
-          productsCount: products.totalDocs,
-        }
+    {
+      name: 'productsCount',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        description: 'Number of products in this category (auto-updated)',
+        readOnly: true,
       },
-    ],
-  },
+    },
+  ],
 }

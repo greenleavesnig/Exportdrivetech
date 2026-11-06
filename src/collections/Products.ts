@@ -253,5 +253,67 @@ export const Products: CollectionConfig = {
         return data
       },
     ],
+    afterChange: [
+      async ({ doc, req, operation, previousDoc }) => {
+        // Update category productsCount when product is created, updated, or deleted
+        const categoryId = doc.category?.id || doc.category
+        const previousCategoryId = previousDoc?.category?.id || previousDoc?.category
+
+        const updateCategoryCount = async (catId: string) => {
+          if (!catId) return
+          
+          const products = await req.payload.find({
+            collection: 'products',
+            where: {
+              category: { equals: catId },
+              status: { equals: 'published' },
+            },
+            limit: 0,
+          })
+          
+          await req.payload.update({
+            collection: 'product-categories',
+            id: catId,
+            data: {
+              productsCount: products.totalDocs,
+            },
+          })
+        }
+
+        // Update current category
+        if (categoryId) {
+          await updateCategoryCount(categoryId)
+        }
+
+        // Update previous category if it changed
+        if (previousCategoryId && previousCategoryId !== categoryId) {
+          await updateCategoryCount(previousCategoryId)
+        }
+      },
+    ],
+    afterDelete: [
+      async ({ doc, req }) => {
+        // Update category count when product is deleted
+        const categoryId = doc.category?.id || doc.category
+        if (!categoryId) return
+
+        const products = await req.payload.find({
+          collection: 'products',
+          where: {
+            category: { equals: categoryId },
+            status: { equals: 'published' },
+          },
+          limit: 0,
+        })
+
+        await req.payload.update({
+          collection: 'product-categories',
+          id: categoryId,
+          data: {
+            productsCount: products.totalDocs,
+          },
+        })
+      },
+    ],
   },
 }

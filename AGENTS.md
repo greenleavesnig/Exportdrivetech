@@ -10,6 +10,24 @@ This project has been migrated from Figma Make to Vercel with Payload CMS and Su
 - **Frontend**: Next.js 16, React 19, Tailwind CSS v4
 - **Backend**: Payload CMS 3.93
 
+## Recent Updates (November 2026)
+
+### ✅ Bug Fixes Completed
+- [x] Fixed database connection error handling
+- [x] Added proper error handling in HomeClient component
+- [x] Improved HTML escaping for XSS protection
+- [x] Removed unused dependencies (Clerk, Wrangler)
+- [x] Fixed TypeScript build errors (removed ignoreBuildErrors)
+- [x] Secured Next.js image configuration
+- [x] Added rate limiting for RFQ submissions
+- [x] Fixed productsCount field in ProductCategories
+- [x] Improved loading states with skeleton UI
+- [x] Created REST API endpoint for RFQ (/api/rfq)
+- [x] Enhanced error messages and logging
+- [x] Added disposable email detection
+- [x] Fixed unit display formatting in product pages
+- [x] Moved hardcoded values to environment variables
+
 ## Migration Status
 - [x] Migrated from Figma Make to standard Payload CMS
 - [x] Configured Vercel deployment
@@ -23,7 +41,9 @@ This project has been migrated from Figma Make to Vercel with Payload CMS and Su
 
 ## Environment Variables
 
-### Vercel Environment Variables
+⚠️ **IMPORTANT:** See `ENV_SETUP.md` for detailed setup instructions.
+
+### Required Vercel Environment Variables
 - `PAYLOAD_SECRET` - Payload CMS secret key
 - `POSTGRES_URL` - Supabase PostgreSQL connection string
 - `POSTGRES_PRISMA_URL` - Prisma-compatible connection string
@@ -35,6 +55,9 @@ This project has been migrated from Figma Make to Vercel with Payload CMS and Su
 - `RESEND_API_KEY` - Resend API key for email notifications
 - `RESEND_FROM_EMAIL` - Verified sender email (trade@exportdrivetech.com)
 - `SALES_NOTIFICATION_EMAIL` - Email for RFQ notifications
+- `BACKUP_NOTIFICATION_EMAIL` - Backup notification email
+- `NEXT_PUBLIC_SITE_URL` - Production site URL (https://exportdrivetech.com.ng)
+- `NEXT_PUBLIC_WHATSAPP_NUMBER` - Business WhatsApp number (+233...)
 
 ## Project Structure
 
@@ -83,7 +106,17 @@ Tag system for media organization.
 
 - `/api/products` - Fetch products (supports category filtering and featured flag)
 - `/api/categories` - Fetch all product categories
+- `/api/rfq` - REST API for RFQ submissions (POST) and retrieval (GET)
 - `/products/[slug]` - Product detail pages
+
+## Security Features
+
+- **Rate Limiting**: 5 RFQ submissions per hour per IP address
+- **Honeypot Protection**: Bot detection via hidden form field
+- **Disposable Email Detection**: Blocks temporary email services
+- **XSS Protection**: Enhanced HTML escaping with quotes and backticks
+- **Restricted Image Sources**: Only Unsplash and Supabase domains allowed
+- **Input Validation**: Server-side validation for all form inputs
 
 ## Build Commands
 

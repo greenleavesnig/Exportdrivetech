@@ -278,6 +278,10 @@ export interface ProductCategory {
    * Display order (lower numbers appear first)
    */
   order?: number | null;
+  /**
+   * Number of products in this category (auto-updated)
+   */
+  productsCount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -650,6 +654,7 @@ export interface ProductCategoriesSelect<T extends boolean = true> {
   description?: T;
   icon?: T;
   order?: T;
+  productsCount?: T;
   updatedAt?: T;
   createdAt?: T;
 }

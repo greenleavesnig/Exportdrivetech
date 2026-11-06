@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { Product, ProductCategory } from '@/lib/products'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface ProductCatalogProps {
   categories: ProductCategory[]
@@ -17,8 +18,6 @@ export default function ProductCatalog({ categories, products, loading }: Produc
   const categoryProducts = activeCategoryData
     ? products.filter((p) => p.category.id === activeCategoryData.id)
     : []
-
-
 
   return (
     <section id="products" className="section catalog">
@@ -58,9 +57,32 @@ export default function ProductCatalog({ categories, products, loading }: Produc
               <Link
                 href={`/products/${product.slug}`}
                 key={product.id}
+                className="product-item"
               >
-                {product.name}
-                <span>↗</span>
+                {product.featuredImage?.url ? (
+                  <Image
+                    src={product.featuredImage.url}
+                    alt={product.featuredImage.alt || product.name}
+                    width={80}
+                    height={64}
+                    style={{ objectFit: 'cover', borderRadius: '6px' }}
+                  />
+                ) : (
+                  <div className="product-item-placeholder">
+                    {product.category?.icon || '📦'}
+                  </div>
+                )}
+                <div className="product-item-info">
+                  <div className="product-item-name">{product.name}</div>
+                  {product.description && (
+                    <div className="product-item-desc">
+                      {product.description.length > 60
+                        ? `${product.description.slice(0, 60)}...`
+                        : product.description}
+                    </div>
+                  )}
+                </div>
+                <span className="product-item-arrow">↗</span>
               </Link>
             ))}
           </div>

@@ -1,7 +1,6 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { getProductBySlug, getProducts } from '@/lib/products'
+import ProductPageClient from './ProductPageClient'
 import type { Metadata } from 'next'
+import { getProductBySlug } from '@/lib/products'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -25,195 +24,209 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
-  const product = await getProductBySlug(slug)
+  return <ProductPageClient slug={slug} />
+}
+  const [product, setProduct] = useState<Product | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [menu, setMenu] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    async function loadProduct() {
+      try {
+        const prod = await getProductBySlug(slug)
+        if (!prod) {
+          notFound()
+        }
+        setProduct(prod)
+        setSelectedImage(prod.featuredImage?.url || null)
+        
+        const related = await getProducts({
+          category: prod.category.id,
+          limit: 4,
+        })
+        setRelatedProducts(related)
+      } catch (error) {
+        console.error('Failed to load product:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProduct()
+  }, [slug])
+
+  if (loading) {
+    return (
+      <main>
+        <div className="topbar"><div className="shell"><span>Accra, Ghana · Serving global buyers</span><span>Available for 2025/26 contracts</span></div></div>
+        <header>
+          <div className="shell nav">
+            <Link href="/" className="brand"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></Link>
+            <nav className="desktop-nav"><Link href="/">Home</Link><Link href="/#products">Products</Link><Link href="/#services">Services</Link><Link href="/#rfq">Request quote</Link></nav>
+          </div>
+        </header>
+        <section className="section">
+          <div className="shell">
+            <div className="product-loading">
+              <div className="skeleton-box" />
+              <div className="skeleton-text" />
+            </div>
+          </div>
+        </section>
+      </main>
+    )
+  }
 
   if (!product) {
     notFound()
   }
 
-  const relatedProducts = await getProducts({
-    category: product.category.id,
-    limit: 4,
-  })
-
   return (
     <main>
-      <div className="topbar">
-        <div className="shell">
-          <span>Accra, Ghana · Serving global buyers</span>
-          <span>Available for 2025/26 contracts</span>
-        </div>
-      </div>
-
+      <div className="topbar"><div className="shell"><span>Accra, Ghana · Serving global buyers</span><span>Available for 2025/26 contracts</span></div></div>
+      
       <header>
         <div className="shell nav">
-          <Link href="/" className="brand">
-            <span>EXPORTDRIVETECH</span>
-            <small>AGRO TRADING</small>
-          </Link>
-          <nav className="desktop-nav">
-            <Link href="/">Home</Link>
-            <Link href="/#products">Products</Link>
-            <Link href="/#services">Services</Link>
-            <Link href="/#rfq">Request a quote</Link>
-          </nav>
+          <Link href="/" className="brand"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></Link>
+          <nav className="desktop-nav"><Link href="/">Home</Link><Link href="/#products">Products</Link><Link href="/#services">Services</Link><Link href="/#rfq">Request quote</Link></nav>
+          <Link className="nav-cta" href="/#rfq">Request a quote <Arrow /></Link>
+          <button type="button" className="menu-button" aria-label="Toggle menu" onClick={() => setMenu(!menu)}><span /><span /></button>
         </div>
+        {menu && <nav className="mobile-nav"><Link href="/">Home</Link><Link href="/#products">Products</Link><Link href="/#services">Services</Link><Link href="/#rfq">Request quote</Link></nav>}
       </header>
 
-      <section className="section">
+      <section className="section product-detail">
         <div className="shell">
-          <Link href="/#products" className="mb-8 inline-block text-blue-600 hover:underline">
-            ← Back to Products
-          </Link>
-
-          <div className="grid gap-12 md:grid-cols-2">
-            <div>
-              {product.featuredImage && (
-                <img
-                  src={product.featuredImage.url}
-                  alt={product.featuredImage.alt || product.name}
-                  className="w-full rounded-lg"
-                />
-              )}
+          <Link href="/#products" className="breadcrumb">← Back to Products</Link>
+          
+          <div className="product-grid">
+            <div className="product-gallery">
+              <div className="main-image">
+                {selectedImage && (
+                  <img src={selectedImage} alt={product.name} />
+                )}
+              </div>
               {product.images && product.images.length > 0 && (
-                <div className="mt-4 grid grid-cols-4 gap-2">
+                <div className="thumbnail-grid">
+                  {product.featuredImage && (
+                    <button
+                      type="button"
+                      className={selectedImage === product.featuredImage.url ? 'active' : ''}
+                      onClick={() => setSelectedImage(product.featuredImage!.url)}
+                    >
+                      <img src={product.featuredImage.url} alt={product.featuredImage.alt || product.name} />
+                    </button>
+                  )}
                   {product.images.map((img, i) => (
-                    <img
+                    <button
                       key={i}
-                      src={img.image.url}
-                      alt={img.alt}
-                      className="h-20 w-full rounded object-cover"
-                    />
+                      type="button"
+                      className={selectedImage === img.image.url ? 'active' : ''}
+                      onClick={() => setSelectedImage(img.image.url)}
+                    >
+                      <img src={img.image.url} alt={img.alt} />
+                    </button>
                   ))}
                 </div>
               )}
             </div>
 
-            <div>
-              <p className="mb-2 text-sm font-medium text-zinc-600">
-                {product.category.name}
-              </p>
-              <h1 className="mb-4 text-4xl font-bold">{product.name}</h1>
-              <p className="mb-6 text-lg text-zinc-700">{product.description}</p>
+            <div className="product-info">
+              <div className="product-category">{product.category.name}</div>
+              <h1 className="product-title">{product.name}</h1>
+              <p className="product-description">{product.description}</p>
+
+              <div className="product-stats">
+                {product.price && (
+                  <div className="stat">
+                    <small>Price</small>
+                    <strong>${product.price} / {product.priceUnit === 'metric-ton' ? 'MT' : product.priceUnit === 'kilogram' ? 'kg' : product.priceUnit || 'unit'}</strong>
+                  </div>
+                )}
+                {product.moq && (
+                  <div className="stat">
+                    <small>Minimum Order</small>
+                    <strong>{product.moq} {product.moqUnit === 'metric-tons' ? 'MT' : product.moqUnit === 'kilograms' ? 'kg' : product.moqUnit || 'units'}</strong>
+                  </div>
+                )}
+                {product.availability && (
+                  <div className="stat">
+                    <small>Availability</small>
+                    <strong className="capitalize">{product.availability.replace('-', ' ')}</strong>
+                  </div>
+                )}
+                {product.origin && (
+                  <div className="stat">
+                    <small>Origin</small>
+                    <strong>{product.origin}</strong>
+                  </div>
+                )}
+              </div>
 
               {product.specifications && product.specifications.length > 0 && (
-                <div className="mb-6 rounded-lg bg-zinc-50 p-6">
-                  <h3 className="mb-4 text-lg font-semibold">Specifications</h3>
-                  <dl className="space-y-2">
+                <div className="product-specs">
+                  <h3>Specifications</h3>
+                  <dl>
                     {product.specifications.map((spec, i) => (
-                      <div key={i} className="flex">
-                        <dt className="w-1/3 font-medium text-zinc-600">{spec.label}</dt>
-                        <dd className="w-2/3 text-zinc-900">{spec.value}</dd>
+                      <div key={i}>
+                        <dt>{spec.label}</dt>
+                        <dd>{spec.value}</dd>
                       </div>
                     ))}
                   </dl>
                 </div>
               )}
 
-              <div className="mb-6 grid grid-cols-2 gap-4">
-                {product.price && (
-                  <div>
-                    <p className="text-sm text-zinc-600">Price</p>
-                    <p className="text-lg font-semibold">
-                      ${product.price} / {product.priceUnit === 'metric-ton' ? 'MT' : product.priceUnit}
-                    </p>
-                  </div>
-                )}
-                {product.moq && (
-                  <div>
-                    <p className="text-sm text-zinc-600">Minimum Order</p>
-                    <p className="text-lg font-semibold">
-                      {product.moq} {product.moqUnit}
-                    </p>
-                  </div>
-                )}
-                {product.availability && (
-                  <div>
-                    <p className="text-sm text-zinc-600">Availability</p>
-                    <p className="text-lg font-semibold capitalize">{product.availability}</p>
-                  </div>
-                )}
-                {product.origin && (
-                  <div>
-                    <p className="text-sm text-zinc-600">Origin</p>
-                    <p className="text-lg font-semibold">{product.origin}</p>
-                  </div>
-                )}
-              </div>
-
               {product.season && (
-                <p className="mb-6 text-sm text-zinc-600">
+                <div className="product-season">
                   <strong>Season:</strong> {product.season}
-                </p>
+                </div>
               )}
 
               {product.packagingOptions && product.packagingOptions.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="mb-2 font-semibold">Packaging Options</h3>
-                  <ul className="list-inside list-disc text-zinc-700">
+                <div className="product-packaging">
+                  <h3>Packaging Options</h3>
+                  <ul>
                     {product.packagingOptions.map((pkg, i) => (
-                      <li key={i}>
-                        {pkg.type} {pkg.weight && `(${pkg.weight})`}
-                      </li>
+                      <li key={i}>{pkg.type} {pkg.weight && `(${pkg.weight})`}</li>
                     ))}
                   </ul>
                 </div>
               )}
 
               {product.certifications && product.certifications.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="mb-2 font-semibold">Certifications</h3>
-                  <ul className="list-inside list-disc text-zinc-700">
+                <div className="product-certifications">
+                  <h3>Certifications</h3>
+                  <ul>
                     {product.certifications.map((cert, i) => (
-                      <li key={i}>
-                        {cert.name} {cert.issuer && `(${cert.issuer})`}
-                      </li>
+                      <li key={i}>{cert.name} {cert.issuer && `(${cert.issuer})`}</li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              <Link
-                href="/#rfq"
-                className="inline-block rounded bg-green-600 px-6 py-3 font-medium text-white hover:bg-green-700"
-              >
-                Request a Quote
-              </Link>
+              <Link href="/#rfq" className="button lime product-cta">Request a Quote <Arrow /></Link>
             </div>
           </div>
 
-          {product.fullDescription && (
-            <div className="mt-12">
-              <h2 className="mb-4 text-2xl font-bold">Product Details</h2>
-              <div className="prose max-w-none text-zinc-700">
-                {/* Render rich text content */}
-                <p>{product.description}</p>
-              </div>
-            </div>
-          )}
-
           {relatedProducts.length > 0 && (
-            <div className="mt-12">
-              <h2 className="mb-6 text-2xl font-bold">Related Products</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="related-products">
+              <h2>Related Products</h2>
+              <div className="related-grid">
                 {relatedProducts
                   .filter((p) => p.id !== product.id)
                   .slice(0, 4)
                   .map((related) => (
-                    <Link
-                      key={related.id}
-                      href={`/products/${related.slug}`}
-                      className="rounded-lg border p-4 hover:border-green-600"
-                    >
+                    <Link key={related.id} href={`/products/${related.slug}`} className="related-card">
                       {related.featuredImage && (
-                        <img
-                          src={related.featuredImage.url}
-                          alt={related.featuredImage.alt || related.name}
-                          className="mb-2 h-32 w-full rounded object-cover"
-                        />
+                        <img src={related.featuredImage.url} alt={related.featuredImage.alt || related.name} />
                       )}
-                      <h3 className="font-semibold">{related.name}</h3>
-                      <p className="text-sm text-zinc-600">{related.category.name}</p>
+                      <div>
+                        <small>{related.category.name}</small>
+                        <h3>{related.name}</h3>
+                      </div>
                     </Link>
                   ))}
               </div>
@@ -225,27 +238,13 @@ export default async function ProductPage({ params }: Props) {
       <footer>
         <div className="shell footer">
           <div>
-            <a href="#" className="brand inverse">
-              <span>EXPORTDRIVETECH</span>
-              <small>AGRO TRADING</small>
-            </a>
+            <a href="/" className="brand inverse"><i><Mark /></i><span><strong>EXPORTDRIVETECH</strong><small>AGRO TRADING</small></span></a>
             <p>Quality from the source. Reliability to your door.</p>
           </div>
-          <div>
-            <a href="/#about">About</a>
-            <a href="/#products">Products</a>
-            <a href="/#services">Services</a>
-            <a href="/#rfq">Request a quote</a>
-          </div>
-          <div>
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-          </div>
+          <div><a href="/#about">About</a><a href="/#products">Products</a><a href="/#services">Services</a><a href="/#rfq">Request quote</a></div>
+          <div><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Service</a></div>
         </div>
-        <div className="shell copyright">
-          <span>© 2025 ExportDriveTech Agro Trading</span>
-          <span>Accra · Ghana</span>
-        </div>
+        <div className="shell copyright"><span>© 2025 ExportDriveTech Agro Trading</span><span>Accra · Ghana</span></div>
       </footer>
     </main>
   )
