@@ -101,7 +101,7 @@ export async function POST(request: Request) {
     console.log(`✅ Found ${categories.length} existing categories, skipping creation`)
   }
 
-    // Get category IDs
+  // Get category IDs
   const categoryMap = new Map(
     categories.map((cat: any) => [cat.name, cat.id])
   )
