@@ -33,7 +33,7 @@ export default buildConfig({
   }),
   admin: {
     user: Admins.slug,
-    css: 'src/app/(payload)/admin/custom.css',
+    css: '/admin/custom.css',
     meta: {
       titleSuffix: ' | ExportDriveTech Admin',
       favicon: '/favicon.ico',
