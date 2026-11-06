@@ -86,7 +86,8 @@ export async function POST(request: Request) {
       },
     ]
 
-    const categories = []
+  let categories: any[] = []
+  if (existingCategories.totalDocs === 0) {
     for (const cat of categoryData) {
       const created = await payload.create({
         collection: 'product-categories',
