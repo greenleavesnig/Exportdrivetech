@@ -55,19 +55,18 @@ async function seed() {
         order: 7,
       },
     ],
-    overrideAccess: true,
   })
 
-  console.log(`✅ Created ${categories.docs.length} categories`)
+  console.log(`✅ Created ${categories.length} categories`)
 
   // Get category IDs
   const categoryMap = new Map(
-    categories.docs.map((cat: any) => [cat.name, cat.id])
+    categories.map((cat: any) => [cat.name, cat.id])
   )
 
   // Seed Products
   console.log('📦 Creating products...')
-  const products = await payload.create({
+  const productsData = await payload.create({
     collection: 'products',
     overrideAccess: true,
     data: [
@@ -336,10 +335,9 @@ async function seed() {
         status: 'published',
       },
     ],
-    overrideAccess: true,
   })
 
-  console.log(`✅ Created ${products.length} products`)
+  console.log(`✅ Created ${productsData.length} products`)
   console.log('🎉 Seed completed successfully!')
 }
 
