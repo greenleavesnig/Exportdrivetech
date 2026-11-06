@@ -7,13 +7,13 @@ export async function POST(request: Request) {
     const payload = await getPayload({ config })
 
     // Check if database is empty - allow seeding without secret if empty
-    const existingProducts = await payload.find({
+    const checkProducts = await payload.find({
       collection: 'products',
       overrideAccess: true,
       limit: 1,
     })
 
-    const isEmpty = existingProducts.totalDocs === 0
+    const isEmpty = checkProducts.totalDocs === 0
 
     // Require secret if database already has data
     if (!isEmpty) {
