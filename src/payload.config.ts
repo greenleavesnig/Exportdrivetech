@@ -17,16 +17,18 @@ const dirname = path.dirname(filename)
 // Use pooled connection string to avoid connection limit issues
 const connectionString = process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING
 
+// Append SSL mode to connection string for Supabase compatibility
+const sslConnectionString = connectionString
+  ? `${connectionString}${connectionString.includes('?') ? '&' : '?'}sslmode=no-verify`
+  : connectionString
+
 export default buildConfig({
   db: postgresAdapter({
     pool: {
-      connectionString,
+      connectionString: sslConnectionString,
       max: 10,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
-      ssl: {
-        rejectUnauthorized: false,
-      },
     },
   }),
   admin: {
