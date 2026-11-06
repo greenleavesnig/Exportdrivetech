@@ -14,6 +14,19 @@ export async function POST(request: Request) {
 
     console.log('🌱 Starting seed...')
 
+    // Clear existing data
+    console.log('🗑️ Clearing existing data...')
+    await payload.delete({
+      collection: 'products',
+      overrideAccess: true,
+      where: {},
+    })
+    await payload.delete({
+      collection: 'product-categories',
+      overrideAccess: true,
+      where: {},
+    })
+
     // Seed Product Categories
     console.log('📦 Creating product categories...')
     const categories = await payload.create({
