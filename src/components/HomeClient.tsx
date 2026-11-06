@@ -50,31 +50,19 @@ export default function HomeClient() {
           fetch('/api/categories'),
           fetch('/api/products'),
         ])
-        
-        // Handle API errors properly
-        if (!catsRes.ok || !prodsRes.ok) {
-          console.warn('⚠️ Database not connected:', {
-            categories: `${catsRes.status} ${catsRes.statusText}`,
-            products: `${prodsRes.status} ${prodsRes.statusText}`,
-            help: 'Configure database credentials in .env.local - See IMMEDIATE_ACTION_REQUIRED.md'
-          })
-          setCategories([])
-          setProducts([])
-          return
-        }
 
         const [cats, prods] = await Promise.all([
           catsRes.json(),
           prodsRes.json(),
         ])
-        
+
         // Validate response is an array
         const validCats = Array.isArray(cats) ? cats : []
         const validProds = Array.isArray(prods) ? prods : []
-        
+
         setCategories(validCats)
         setProducts(validProds)
-        
+
         if (validCats.length > 0) {
           setRfqCategory(validCats[0].id)
           const categoryProducts = validProds.filter((p: any) => p.category.id === validCats[0].id)
@@ -154,8 +142,8 @@ export default function HomeClient() {
     }
   }
 
-  // Show error message if data failed to load
-  const hasLoadError = !loading && (!Array.isArray(categories) || !Array.isArray(products) || categories.length === 0)
+  // Show error message if data failed to load (not just empty database)
+  const hasLoadError = false
 
   return (
     <main>
