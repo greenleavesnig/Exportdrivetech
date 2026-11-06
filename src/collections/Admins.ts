@@ -11,10 +11,20 @@ const canUpdateOwnAccount: Access = ({ req, id }) => {
   return isPayloadAdmin({ req })
 }
 
+const isFirstAdmin: Access = async ({ req }) => {
+  // Allow creation if no admins exist yet
+  const { total } = await req.payload.find({
+    collection: 'admins',
+    limit: 1,
+    depth: 0,
+  })
+  return total === 0
+}
+
 export const Admins: CollectionConfig = {
   slug: 'admins',
   access: {
-    create: () => false,
+    create: isFirstAdmin,
     delete: isPayloadAdmin,
     read: isPayloadAdmin,
     update: canUpdateOwnAccount,
