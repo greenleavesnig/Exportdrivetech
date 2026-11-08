@@ -103,8 +103,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | 'en' | 'en'[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+  };
   locale: 'en';
   widgets: {
     collections: CollectionsWidget;
@@ -170,15 +174,6 @@ export interface Media {
   tags?: (number | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -310,8 +305,8 @@ export interface Product {
   fullDescription?: string | null;
   images?:
     | {
-        image: number | Media;
-        alt: string;
+        image?: (number | null) | Media;
+        alt?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -524,15 +519,6 @@ export interface MediaSelect<T extends boolean = true> {
   tags?: T;
   updatedAt?: T;
   createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -709,6 +695,358 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Global copy, navigation, contact details, and form options for the public website. Leave a field blank to keep the built-in default.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  topbar?: {
+    left?: string | null;
+    right?: string | null;
+  };
+  brand?: {
+    name?: string | null;
+    tagline?: string | null;
+  };
+  nav?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  navCta?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  hero?: {
+    eyebrow?: string | null;
+    titleLine1?: string | null;
+    titleLine2?: string | null;
+    paragraph?: string | null;
+    primaryCta?: {
+      label?: string | null;
+      href?: string | null;
+    };
+    secondaryCta?: {
+      label?: string | null;
+      href?: string | null;
+    };
+    image?: string | null;
+    imageAlt?: string | null;
+    stats?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  featured?: {
+    eyebrow?: string | null;
+    titleLine1?: string | null;
+    titleLine2Prefix?: string | null;
+    titleLine2?: string | null;
+    paragraph?: string | null;
+    badge?: string | null;
+    placeholderSmall?: string | null;
+    placeholderTitle?: string | null;
+    requestQuoteLabel?: string | null;
+    fallbackImages?: string[] | null;
+    /**
+     * Match a product slug to the photo shown for it in the rotating "What we export" carousel.
+     */
+    productImages?:
+      | {
+          slug: string;
+          image: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  catalog?: {
+    eyebrow?: string | null;
+    titleLine1?: string | null;
+    titleLine2?: string | null;
+    paragraph?: string | null;
+    groupLabel?: string | null;
+  };
+  markets?: {
+    eyebrow?: string | null;
+    titleLine1?: string | null;
+    titleLine2?: string | null;
+    paragraph?: string | null;
+    ctaLabel?: string | null;
+    cards?:
+      | {
+          region: string;
+          places: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  services?: {
+    eyebrow?: string | null;
+    titleLine1?: string | null;
+    titleLine2?: string | null;
+    paragraph?: string | null;
+    cards?:
+      | {
+          number: string;
+          title: string;
+          copy: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  rfq?: {
+    eyebrow?: string | null;
+    titleLine1?: string | null;
+    titleLine2?: string | null;
+    paragraph?: string | null;
+  };
+  contact?: {
+    email?: string | null;
+    whatsapp?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  };
+  footer?: {
+    tagline?: string | null;
+    copyright?: string | null;
+    credit?: string | null;
+  };
+  legal?: {
+    lastUpdated?: string | null;
+  };
+  formOptions?: {
+    packaging?: string[] | null;
+    deliveryTimeline?: string[] | null;
+    incoterms?: string[] | null;
+    shippingMethod?: string[] | null;
+    referralSource?: string[] | null;
+    units?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  countries?: string[] | null;
+  productPage?: {
+    breadcrumb?: string | null;
+    specificationsLabel?: string | null;
+    priceLabel?: string | null;
+    moqLabel?: string | null;
+    requestQuoteLabel?: string | null;
+    relatedLabel?: string | null;
+    /**
+     * Currency symbol shown before prices, e.g. ₦ or $
+     */
+    currency?: string | null;
+    fallbackOrigin?: string | null;
+    fallbackGrade?: string | null;
+    fallbackAvailability?: string | null;
+    fallbackSeason?: string | null;
+    fallbackPriceUnit?: string | null;
+    fallbackMoqUnit?: string | null;
+    fallbackIcon?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  topbar?:
+    | T
+    | {
+        left?: T;
+        right?: T;
+      };
+  brand?:
+    | T
+    | {
+        name?: T;
+        tagline?: T;
+      };
+  nav?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  navCta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        titleLine1?: T;
+        titleLine2?: T;
+        paragraph?: T;
+        primaryCta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+        secondaryCta?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+        image?: T;
+        imageAlt?: T;
+        stats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  featured?:
+    | T
+    | {
+        eyebrow?: T;
+        titleLine1?: T;
+        titleLine2Prefix?: T;
+        titleLine2?: T;
+        paragraph?: T;
+        badge?: T;
+        placeholderSmall?: T;
+        placeholderTitle?: T;
+        requestQuoteLabel?: T;
+        fallbackImages?: T;
+        productImages?:
+          | T
+          | {
+              slug?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  catalog?:
+    | T
+    | {
+        eyebrow?: T;
+        titleLine1?: T;
+        titleLine2?: T;
+        paragraph?: T;
+        groupLabel?: T;
+      };
+  markets?:
+    | T
+    | {
+        eyebrow?: T;
+        titleLine1?: T;
+        titleLine2?: T;
+        paragraph?: T;
+        ctaLabel?: T;
+        cards?:
+          | T
+          | {
+              region?: T;
+              places?: T;
+              id?: T;
+            };
+      };
+  services?:
+    | T
+    | {
+        eyebrow?: T;
+        titleLine1?: T;
+        titleLine2?: T;
+        paragraph?: T;
+        cards?:
+          | T
+          | {
+              number?: T;
+              title?: T;
+              copy?: T;
+              id?: T;
+            };
+      };
+  rfq?:
+    | T
+    | {
+        eyebrow?: T;
+        titleLine1?: T;
+        titleLine2?: T;
+        paragraph?: T;
+      };
+  contact?:
+    | T
+    | {
+        email?: T;
+        whatsapp?: T;
+        phone?: T;
+        address?: T;
+      };
+  footer?:
+    | T
+    | {
+        tagline?: T;
+        copyright?: T;
+        credit?: T;
+      };
+  legal?:
+    | T
+    | {
+        lastUpdated?: T;
+      };
+  formOptions?:
+    | T
+    | {
+        packaging?: T;
+        deliveryTimeline?: T;
+        incoterms?: T;
+        shippingMethod?: T;
+        referralSource?: T;
+        units?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  countries?: T;
+  productPage?:
+    | T
+    | {
+        breadcrumb?: T;
+        specificationsLabel?: T;
+        priceLabel?: T;
+        moqLabel?: T;
+        requestQuoteLabel?: T;
+        relatedLabel?: T;
+        currency?: T;
+        fallbackOrigin?: T;
+        fallbackGrade?: T;
+        fallbackAvailability?: T;
+        fallbackSeason?: T;
+        fallbackPriceUnit?: T;
+        fallbackMoqUnit?: T;
+        fallbackIcon?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

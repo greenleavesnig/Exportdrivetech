@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { headers } from 'next/headers'
 import { rateLimit, getClientIp, isHoneypotTriggered, isDisposableEmail } from '@/lib/rateLimit'
+import { DEFAULT_SITE_CONTENT } from '@/lib/site-defaults'
 
 export type RFQActionState = {
   ok: boolean
@@ -16,6 +17,9 @@ export type RFQActionState = {
 
 const text = (formData: FormData, name: string, max = 500) =>
   String(formData.get(name) ?? '').trim().slice(0, max)
+
+// Units accepted by the RFQ submission schema (kept in sync via site defaults).
+const VALID_UNITS = DEFAULT_SITE_CONTENT.formOptions.units.map((u) => u.value)
 
 const escapeHtml = (value: string) =>
   value
@@ -95,7 +99,7 @@ export async function submitRFQ(
   if (isDisposableEmail(email)) {
     return { ok: false, message: 'Please use a business email address, not a temporary email service.' }
   }
-  if (!Number.isFinite(quantity) || quantity <= 0 || !['metric-tons', 'kilograms', 'containers'].includes(unit)) {
+  if (!Number.isFinite(quantity) || quantity <= 0 || !VALID_UNITS.includes(unit)) {
     return { ok: false, message: 'Please enter a valid quantity and unit.' }
   }
   if (!consent) return { ok: false, message: 'Please accept the privacy consent to continue.' }
@@ -115,7 +119,6 @@ export async function submitRFQ(
 
     const submission = await payload.create({
       collection: 'rfq-submissions',
-      overrideAccess: false,
       data: {
         buyerName,
         company,
@@ -124,8 +127,8 @@ export async function submitRFQ(
         email,
         phone,
         preferredContact,
-        category: categoryId ? parseInt(categoryId, 10) : undefined,
-        product: productId ? parseInt(productId, 10) : undefined,
+        category: parseInt(categoryId, 10),
+        product: parseInt(productId, 10),
         quantity,
         unit: unit as 'metric-tons' | 'kilograms' | 'containers',
         packaging: text(formData, 'packaging', 100),

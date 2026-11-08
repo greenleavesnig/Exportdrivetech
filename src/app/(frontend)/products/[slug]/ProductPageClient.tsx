@@ -2,18 +2,20 @@
 
 import type { Product } from '@/lib/products'
 import Link from 'next/link'
+import { DEFAULT_SITE_CONTENT, type SiteContent } from '@/lib/site-defaults'
 
 interface ProductPageClientProps {
   product: Product
   relatedProducts: Product[]
+  content?: SiteContent['productPage']
 }
 
-export default function ProductPageClient({ product, relatedProducts }: ProductPageClientProps) {
+export default function ProductPageClient({ product, relatedProducts, content = DEFAULT_SITE_CONTENT.productPage }: ProductPageClientProps) {
   return (
     <div className="product-detail">
       <div className="shell">
         <Link href="/" className="breadcrumb">
-          ← Back to Home
+          {content.breadcrumb}
         </Link>
 
         <div className="product-grid">
@@ -26,7 +28,7 @@ export default function ProductPageClient({ product, relatedProducts }: ProductP
                 />
               ) : (
                 <div className="product-item-placeholder" style={{ fontSize: '64px' }}>
-                  {product.category?.icon || '📦'}
+                  {product.category?.icon || content.fallbackIcon}
                 </div>
               )}
             </div>
@@ -42,25 +44,25 @@ export default function ProductPageClient({ product, relatedProducts }: ProductP
             <div className="product-stats">
               <div className="stat">
                 <small>Origin</small>
-                <strong>{product.origin || 'Nigeria'}</strong>
+                <strong>{product.origin || content.fallbackOrigin}</strong>
               </div>
               <div className="stat">
                 <small>Grade</small>
-                <strong>{product.grade || 'Premium'}</strong>
+                <strong>{product.grade || content.fallbackGrade}</strong>
               </div>
               <div className="stat">
                 <small>Availability</small>
-                <strong>{product.availability || 'Available'}</strong>
+                <strong>{product.availability || content.fallbackAvailability}</strong>
               </div>
               <div className="stat">
                 <small>Season</small>
-                <strong>{product.season || 'Year-round'}</strong>
+                <strong>{product.season || content.fallbackSeason}</strong>
               </div>
             </div>
 
             {product.specifications && product.specifications.length > 0 && (
               <div className="product-specs">
-                <h3>Specifications</h3>
+                <h3>{content.specificationsLabel}</h3>
                 <dl>
                   {product.specifications.map((spec, index) => (
                     <div key={index}>
@@ -75,14 +77,14 @@ export default function ProductPageClient({ product, relatedProducts }: ProductP
             {product.price && (
               <div className="product-price">
                 <div className="price-info">
-                  <span className="price-label">Starting from</span>
+                  <span className="price-label">{content.priceLabel}</span>
                   <span className="price-value">
-                    ₦{product.price.toLocaleString()} / {product.priceUnit || 'metric ton'}
+                    {content.currency}{product.price.toLocaleString()} / {product.priceUnit || content.fallbackPriceUnit}
                   </span>
                 </div>
                 {product.moq && (
                   <span className="moq-info">
-                    MOQ: {product.moq} {product.moqUnit || 'metric tons'}
+                    {content.moqLabel}: {product.moq} {product.moqUnit || content.fallbackMoqUnit}
                   </span>
                 )}
               </div>
@@ -90,7 +92,7 @@ export default function ProductPageClient({ product, relatedProducts }: ProductP
 
             <div className="product-cta">
               <Link href="/#rfq" className="button lime">
-                Request Quote
+                {content.requestQuoteLabel}
               </Link>
             </div>
           </div>
@@ -98,7 +100,7 @@ export default function ProductPageClient({ product, relatedProducts }: ProductP
 
         {relatedProducts.length > 0 && (
           <div className="related-products">
-            <h2>Related Products</h2>
+            <h2>{content.relatedLabel}</h2>
             <div className="related-grid">
               {relatedProducts.map((related) => (
                 <Link
@@ -111,7 +113,7 @@ export default function ProductPageClient({ product, relatedProducts }: ProductP
                       <img src={related.featuredImage.url} alt={related.name} />
                     ) : (
                       <div className="product-item-placeholder">
-                        {related.category?.icon || '📦'}
+                        {related.category?.icon || content.fallbackIcon}
                       </div>
                     )}
                   </div>

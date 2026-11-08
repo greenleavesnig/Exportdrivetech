@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import config from '@payload-config'
 import { getPayload } from 'payload'
+import { DEFAULT_SITE_CONTENT } from '@/lib/site-defaults'
+
+const VALID_UNITS = DEFAULT_SITE_CONTENT.formOptions.units.map((u) => u.value)
 
 /**
  * POST /api/rfq - Create a new RFQ submission
@@ -52,10 +55,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validUnits = ['metric-tons', 'kilograms', 'containers']
-    if (!validUnits.includes(body.unit)) {
+    if (!VALID_UNITS.includes(body.unit)) {
       return NextResponse.json(
-        { error: 'Invalid unit. Must be one of: metric-tons, kilograms, containers' },
+        { error: `Invalid unit. Must be one of: ${VALID_UNITS.join(', ')}` },
         { status: 400 }
       )
     }

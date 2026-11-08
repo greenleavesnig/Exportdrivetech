@@ -1,10 +1,16 @@
 import Link from 'next/link'
+import { getSiteContent } from '@/lib/site-settings'
 
-export default function PrivacyPolicy() {
+// Revalidate so content edited in the CMS global appears without a redeploy.
+export const revalidate = 60
+
+export default async function PrivacyPolicy() {
+  const { legal, contact } = await getSiteContent()
+  const lastUpdated = new Date(legal.lastUpdated).toLocaleDateString()
   return (
     <main className="mx-auto max-w-4xl px-8 py-16">
       <h1 className="mb-8 text-4xl font-bold tracking-tight">Privacy Policy</h1>
-      <p className="mb-4 text-zinc-600">Last updated: {new Date().toLocaleDateString()}</p>
+      <p className="mb-4 text-zinc-600">Last updated: {lastUpdated}</p>
 
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">1. Introduction</h2>
@@ -139,9 +145,9 @@ export default function PrivacyPolicy() {
           If you have questions about this Privacy Policy or our data practices, please contact us:
         </p>
         <ul className="mb-4 list-inside list-disc text-zinc-700">
-          <li>Email: <a href="mailto:trade@exportdrivetech.com" className="text-blue-600 underline">trade@exportdrivetech.com</a></li>
-          <li>Phone: {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+234 20 000 0000'}</li>
-          <li>Address: Nigeria</li>
+          <li>Email: <a href={`mailto:${contact.email}`} className="text-blue-600 underline">{contact.email}</a></li>
+          <li>Phone: {contact.phone}</li>
+          <li>Address: {contact.address}</li>
         </ul>
       </section>
 

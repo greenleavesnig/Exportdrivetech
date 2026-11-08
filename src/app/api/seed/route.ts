@@ -4,19 +4,21 @@ import config from '@payload-config'
 
 export async function POST(request: Request) {
   try {
-    const payload = await getPayload({ config })
-
-    // Check if this is a destructive reseed (clear existing data)
-    let isDestructive = false
+    // Read the body once – seeding is a privileged operation.
+    let body: any = {}
     try {
-      const body = await request.json()
-      isDestructive = body.clear === true
-      if (isDestructive && body.secret !== process.env.PAYLOAD_SECRET) {
-        return NextResponse.json({ error: 'Unauthorized - destructive operations require PAYLOAD_SECRET' }, { status: 401 })
-      }
+      body = await request.json()
     } catch {
-      // No body or invalid JSON - non-destructive mode
+      // No body or invalid JSON – treat as empty (still requires a secret).
     }
+
+    // Every seeding operation requires the Payload secret.
+    if (!process.env.PAYLOAD_SECRET || body.secret !== process.env.PAYLOAD_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const isDestructive = body.clear === true
+    const payload = await getPayload({ config })
 
     console.log('🌱 Starting seed...')
 
@@ -133,7 +135,7 @@ export async function POST(request: Request) {
   // Seed Products - add missing ones or clear if destructive
   console.log('📦 Creating products...')
   const existingProductSlugs = new Set(existingProducts.docs.map((p: any) => p.slug))
-  const productsArray = [
+  const productsArray: any[] = [
         // SPICES
         {
           name: 'Chili Pepper',

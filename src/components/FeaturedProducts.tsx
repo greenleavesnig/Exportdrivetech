@@ -1,34 +1,50 @@
 'use client'
 
 import type { Product } from '@/lib/products'
-import Link from 'next/link'
 import Image from 'next/image'
+import { DEFAULT_SITE_CONTENT, type SiteContent } from '@/lib/site-defaults'
 
 interface FeaturedProductsProps {
   products: Product[]
   loading: boolean
+  content?: SiteContent['featured']
 }
 
-// Fallback images for featured products
-const fallbackImages = [
-  'https://images.unsplash.com/photo-1592797913307-1f696cf2f5a7?auto=format&fit=crop&w=800&q=80', // Ginger
-  'https://images.unsplash.com/photo-1608797178974-15b35a64ede9?auto=format&fit=crop&w=800&q=80', // Cashews
-  'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=800&q=80', // Hibiscus
-]
+export default function FeaturedProducts({ products, loading, content = DEFAULT_SITE_CONTENT.featured }: FeaturedProductsProps) {
+  // Rotate through every featured product so more of the range is shown.
+  const items = products.filter((product) => product.featured)
 
-export default function FeaturedProducts({ products, loading }: FeaturedProductsProps) {
-  const featuredProducts = products.filter(p => p.featured).slice(0, 3)
+  // Prefer the product's own uploaded image, then the slug-matched photo,
+  // then a generic fallback — so a card always pictures what it names.
+  const imageFor = (product: Product, index: number) => {
+    if (product.featuredImage?.url) {
+      return { src: product.featuredImage.url, alt: product.featuredImage.alt || product.name }
+    }
+    const matched = content.productImages?.find((entry) => entry.slug === product.slug)?.image
+    return {
+      src: matched || content.fallbackImages[index % content.fallbackImages.length],
+      alt: product.name,
+    }
+  }
+
+  const scrollToRfq = () => {
+    document.getElementById('rfq')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const heading = (
+    <div className="shell split-heading">
+      <div>
+        <p className="eyebrow">{content.eyebrow}</p>
+        <h2>{content.titleLine1}<br />{content.titleLine2Prefix}<em>{content.titleLine2}</em></h2>
+      </div>
+      <p>{content.paragraph}</p>
+    </div>
+  )
 
   if (loading) {
     return (
       <section id="about" className="section">
-        <div className="shell split-heading">
-          <div>
-            <p className="eyebrow">What we export</p>
-            <h2>Harvested with care.<br />Prepared for <em>the world.</em></h2>
-          </div>
-          <p>We bridge trusted local growers and international buyers. Every shipment is selected, graded, and packed to meet your market requirements.</p>
-        </div>
+        {heading}
         <div className="shell feature-grid">
           {[1, 2, 3].map((i) => (
             <article className="feature-card" key={i}>
@@ -40,95 +56,74 @@ export default function FeaturedProducts({ products, loading }: FeaturedProducts
     )
   }
 
-  // If no featured products, show placeholder with fallback images
-  if (featuredProducts.length === 0) {
+  // No featured products yet — rotate the generic fallback photos instead.
+  if (items.length === 0) {
+    const placeholders = [...content.fallbackImages, ...content.fallbackImages]
     return (
       <section id="about" className="section">
-        <div className="shell split-heading">
-          <div>
-            <p className="eyebrow">What we export</p>
-            <h2>Harvested with care.<br />Prepared for <em>the world.</em></h2>
+        {heading}
+        <div className="shell feature-rail">
+          <div className="feature-track">
+            {placeholders.map((imgUrl, i) => {
+              const n = (i % content.fallbackImages.length) + 1
+              return (
+                <article className="feature-card" key={`placeholder-${i}`} aria-hidden={i >= content.fallbackImages.length}>
+                  <Image
+                    src={imgUrl}
+                    alt={`${content.placeholderTitle} ${n}`}
+                    fill
+                    sizes="(max-width: 760px) 280px, 360px"
+                    style={{ objectFit: 'cover' }}
+                  />
+                  <div className="card-shade" />
+                  <span>{content.badge}</span>
+                  <div>
+                    <small>{content.placeholderSmall}</small>
+                    <h3>{content.placeholderTitle} {n}</h3>
+                    <button type="button" onClick={scrollToRfq}>{content.requestQuoteLabel}</button>
+                  </div>
+                </article>
+              )
+            })}
           </div>
-          <p>We bridge trusted local growers and international buyers. Every shipment is selected, graded, and packed to meet your market requirements.</p>
-        </div>
-        <div className="shell feature-grid">
-          {fallbackImages.map((imgUrl, i) => (
-            <article className="feature-card" key={i}>
-              <Image
-                src={imgUrl}
-                alt={`Featured product ${i + 1}`}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                style={{ objectFit: 'cover' }}
-              />
-              <div className="card-shade" />
-              <span>Coming Soon</span>
-              <div>
-                <small>Premium agricultural products sourced from West Africa</small>
-                <h3>Featured Product {i + 1}</h3>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const rfqSection = document.getElementById('rfq')
-                    rfqSection?.scrollIntoView({ behavior: 'smooth' })
-                  }}
-                >
-                  Request quote →
-                </button>
-              </div>
-            </article>
-          ))}
         </div>
       </section>
     )
   }
 
+  // Duplicate the list once for a seamless, endlessly looping rotation.
+  const loop = [
+    ...items.map((product) => ({ product, duplicate: false })),
+    ...items.map((product) => ({ product, duplicate: true })),
+  ]
+
   return (
     <section id="about" className="section">
-      <div className="shell split-heading">
-        <div>
-          <p className="eyebrow">What we export</p>
-          <h2>Harvested with care.<br />Prepared for <em>the world.</em></h2>
+      {heading}
+      <div className="shell feature-rail">
+        <div className="feature-track">
+          {loop.map(({ product, duplicate }, index) => {
+            const { src, alt } = imageFor(product, index)
+            return (
+              <article className="feature-card" key={`${product.id}-${index}`} aria-hidden={duplicate}>
+                <Image
+                  src={src}
+                  alt={alt}
+                  fill
+                  sizes="(max-width: 760px) 280px, 360px"
+                  style={{ objectFit: 'cover' }}
+                />
+                <div className="card-shade" />
+                <span>{product.category?.name || 'Products'}</span>
+                <div>
+                  <small>{product.description}</small>
+                  <h3>{product.name}</h3>
+                  <button type="button" onClick={scrollToRfq}>{content.requestQuoteLabel}</button>
+                </div>
+              </article>
+            )
+          })}
         </div>
-        <p>We bridge trusted local growers and international buyers. Every shipment is selected, graded, and packed to meet your market requirements.</p>
-      </div>
-      <div className="shell feature-grid">
-        {featuredProducts.map((product, i) => (
-          <article className="feature-card" key={product.id}>
-            {product.featuredImage?.url ? (
-              <Image
-                src={product.featuredImage.url}
-                alt={product.featuredImage.alt || product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                style={{ objectFit: 'cover' }}
-              />
-            ) : (
-              <Image
-                src={fallbackImages[i % fallbackImages.length]}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                style={{ objectFit: 'cover' }}
-              />
-            )}
-            <div className="card-shade" />
-            <span>{product.category?.name || 'Products'}</span>
-            <div>
-              <small>{product.description}</small>
-              <h3>{product.name}</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  const rfqSection = document.getElementById('rfq')
-                  rfqSection?.scrollIntoView({ behavior: 'smooth' })
-                }}
-              >
-                Request quote →
-              </button>
-            </div>
-          </article>
-        ))}
       </div>
     </section>
   )

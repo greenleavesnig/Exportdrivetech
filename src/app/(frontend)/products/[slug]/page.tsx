@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getProductBySlug, getProducts } from '@/lib/products'
+import { getSiteContent } from '@/lib/site-settings'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ProductPageClient from './ProductPageClient'
@@ -37,7 +38,9 @@ export default async function ProductPage({ params }: Props) {
     category: product.category.id.toString(),
   })
 
+  const content = await getSiteContent()
+
   return (
-    <ProductPageClient product={product} relatedProducts={relatedProducts.filter(p => p.id !== product.id)} />
+    <ProductPageClient product={product} relatedProducts={relatedProducts.filter(p => p.id !== product.id)} content={content.productPage} />
   )
 }

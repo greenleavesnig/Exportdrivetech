@@ -13,12 +13,12 @@ const canUpdateOwnAccount: Access = ({ req, id }) => {
 
 const isFirstAdmin: Access = async ({ req }) => {
   // Allow creation if no admins exist yet
-  const { total } = await req.payload.find({
+  const { totalDocs } = await req.payload.find({
     collection: 'admins',
     limit: 1,
     depth: 0,
   })
-  return total === 0
+  return totalDocs === 0
 }
 
 export const Admins: CollectionConfig = {

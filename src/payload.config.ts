@@ -11,6 +11,7 @@ import { Tags } from './collections/Tags'
 import { RFQSubmissions } from './collections/RFQSubmissions'
 import { Products } from './collections/Products'
 import { ProductCategories } from './collections/ProductCategories'
+import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -41,27 +42,22 @@ export default buildConfig({
     user: Admins.slug,
     meta: {
       titleSuffix: ' | ExportDriveTech Admin',
-      ogImage: '/og-image.png',
     },
-    dateFormat: 'DD/MM/YYYY',
+    dateFormat: 'dd/MM/yyyy',
     theme: 'light',
-    weekStartDay: 1, // Monday
-    defaultLimit: 25,
-    pagination: {
-      defaultLimit: 25,
-      limits: [10, 25, 50, 100],
+    importMap: {
+      baseDir: path.resolve(dirname),
     },
-    type: 'root',
-    map: {
-      width: 300,
+    components: {
+      beforeDashboard: ['/components/admin/Dashboard#Dashboard'],
     },
-    timeFormat: 'HH:mm',
   },
   i18n: {
     fallbackLanguage: 'en',
     supportedLanguages: { 'en': adminLanguage },
   },
   collections: [Admins, Media, Folders, Tags, RFQSubmissions, Products, ProductCategories],
+  globals: [SiteSettings],
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

@@ -3,15 +3,16 @@
 import { useState } from 'react'
 import type { Product, ProductCategory } from '@/lib/products'
 import Link from 'next/link'
-import Image from 'next/image'
+import { DEFAULT_SITE_CONTENT, type SiteContent } from '@/lib/site-defaults'
 
 interface ProductCatalogProps {
   categories: ProductCategory[]
   products: Product[]
   loading: boolean
+  content?: SiteContent['catalog']
 }
 
-export default function ProductCatalog({ categories, products, loading }: ProductCatalogProps) {
+export default function ProductCatalog({ categories, products, loading, content = DEFAULT_SITE_CONTENT.catalog }: ProductCatalogProps) {
   const [activeCategory, setActiveCategory] = useState(0)
 
   const activeCategoryData = categories[activeCategory]
@@ -23,10 +24,10 @@ export default function ProductCatalog({ categories, products, loading }: Produc
     <section id="products" className="section catalog">
       <div className="shell split-heading">
         <div>
-          <p className="eyebrow">Our full catalog</p>
-          <h2>One source. <em>Every harvest.</em></h2>
+          <p className="eyebrow">{content.eyebrow}</p>
+          <h2>{content.titleLine1} <em>{content.titleLine2}</em></h2>
         </div>
-        <p>Explore our export-ready selection by product group.</p>
+        <p>{content.paragraph}</p>
       </div>
       <div className="shell catalog-box">
         <div className="group-tabs">
@@ -50,7 +51,7 @@ export default function ProductCatalog({ categories, products, loading }: Produc
           ))}
         </div>
         <div className="group-products">
-          <small>Product group</small>
+          <small>{content.groupLabel}</small>
           <h3>{activeCategoryData?.name}</h3>
           <div>
             {categoryProducts.map((product) => (
