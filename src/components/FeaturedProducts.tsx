@@ -74,6 +74,8 @@ export default function FeaturedProducts({ products, loading, content = DEFAULT_
                     fill
                     sizes="(max-width: 760px) 280px, 360px"
                     style={{ objectFit: 'cover' }}
+                    loading={i < 3 ? 'eager' : 'lazy'}
+                    priority={i < 3}
                   />
                   <div className="card-shade" />
                   <span>{content.badge}</span>
@@ -112,6 +114,8 @@ export default function FeaturedProducts({ products, loading, content = DEFAULT_
                   fill
                   sizes="(max-width: 760px) 280px, 360px"
                   style={{ objectFit: 'cover' }}
+                  loading={index < 3 ? 'eager' : 'lazy'}
+                  priority={index < 3}
                 />
                 <div className="card-shade" />
                 <span>{product.category?.name || 'Products'}</span>
